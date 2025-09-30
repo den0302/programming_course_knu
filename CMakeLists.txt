@@ -3,4 +3,8 @@ project(Lab1)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(Lab1 Lab1.cpp)
+add_executable(Lab1 Lab1.cpp
+        Employee.h
+        ZooGraph.h
+        Employee.cpp
+        ZooGraph.cpp)

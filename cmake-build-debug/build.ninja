@@ -55,6 +55,18 @@ build CMakeFiles/Lab1.dir/Lab1.cpp.obj: CXX_COMPILER__Lab1_unscanned_Debug C$:/U
   OBJECT_DIR = CMakeFiles\Lab1.dir
   OBJECT_FILE_DIR = CMakeFiles\Lab1.dir
 
+build CMakeFiles/Lab1.dir/Employee.cpp.obj: CXX_COMPILER__Lab1_unscanned_Debug C$:/Users/Денис/CLionProjects/Lab1/Employee.cpp || cmake_object_order_depends_target_Lab1
+  DEP_FILE = CMakeFiles\Lab1.dir\Employee.cpp.obj.d
+  FLAGS = -g -std=gnu++20 -fdiagnostics-color=always
+  OBJECT_DIR = CMakeFiles\Lab1.dir
+  OBJECT_FILE_DIR = CMakeFiles\Lab1.dir
+
+build CMakeFiles/Lab1.dir/ZooGraph.cpp.obj: CXX_COMPILER__Lab1_unscanned_Debug C$:/Users/Денис/CLionProjects/Lab1/ZooGraph.cpp || cmake_object_order_depends_target_Lab1
+  DEP_FILE = CMakeFiles\Lab1.dir\ZooGraph.cpp.obj.d
+  FLAGS = -g -std=gnu++20 -fdiagnostics-color=always
+  OBJECT_DIR = CMakeFiles\Lab1.dir
+  OBJECT_FILE_DIR = CMakeFiles\Lab1.dir
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target Lab1
@@ -63,7 +75,7 @@ build CMakeFiles/Lab1.dir/Lab1.cpp.obj: CXX_COMPILER__Lab1_unscanned_Debug C$:/U
 #############################################
 # Link the executable Lab1.exe
 
-build Lab1.exe: CXX_EXECUTABLE_LINKER__Lab1_Debug CMakeFiles/Lab1.dir/Lab1.cpp.obj
+build Lab1.exe: CXX_EXECUTABLE_LINKER__Lab1_Debug CMakeFiles/Lab1.dir/Lab1.cpp.obj CMakeFiles/Lab1.dir/Employee.cpp.obj CMakeFiles/Lab1.dir/ZooGraph.cpp.obj
   FLAGS = -g
   LINK_LIBRARIES = -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
   OBJECT_DIR = CMakeFiles\Lab1.dir
