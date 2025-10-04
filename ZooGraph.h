@@ -1,23 +1,44 @@
 #ifndef ZOOGRAPH_H
 #define ZOOGRAPH_H
-
-#include <map>
-#include <vector>
+#include <memory>
 #include <string>
-#include "Employee.h"
+#include "Graph.h"
 
-class ZooGraph {
+class Aviary : public Vertex {
 private:
-    map<string, vector<string>> adjList;                // список суміжності
-    map<string, vector<Employee>> employeesInEnclosure; // працівники у вольєрах
+    string name;
+    string type;
+    double area;
 public:
-    void addEnclosure(string name);
-    void removeEnclosure(string name);
-    void addPath(string from, string to);
-    void removePath(string from, string to);
-    void assignEmployee(string enclosure, Employee e);
-    void printGraph();
-    void printEmployees();
+    Aviary(const string& name, const string& type, double area)
+        : name(name), type(type), area(area) {}
+
+    string getName() const;
+    string getType() const;
+    double getArea() const;
+
+    void setName(const string& n);
+    void setType(const string& t);
+    void setArea(double a);
+
+    void printInfo() const;
+};
+
+class Path : public Edge {
+public:
+    Path(const std::string& from, const std::string& to, int length)
+        : Edge(from, to, length) {}
+
+    int getLength() const;
+};
+
+class ZooGraph : public Graph {
+public:
+    void addAviary(std::shared_ptr<Aviary> aviary);
+    void removeAviary(const std::string& id);
+    void addPath(const std::string& fromId, const std::string& toId, int length);
+    void removePath(const std::string& fromId, const std::string& toId);
+    void printZoo() const;
 };
 
 #endif //ZOOGRAPH_H

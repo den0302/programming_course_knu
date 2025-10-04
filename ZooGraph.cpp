@@ -1,68 +1,52 @@
 #include "ZooGraph.h"
 #include <iostream>
-#include <algorithm>
+ using namespace std;
 
-void ZooGraph::addEnclosure(string name) {
-    if (adjList.find(name) == adjList.end()) {
-        adjList[name] = {};
-        cout << "Added enclosure: " << name << endl;
-    }
+//===========Aviary===========
+void Aviary::printInfo() const {
+    cout << "Aviary [" << getId() << "]"
+         << " Name: " << name
+         << ", Type: " << type
+         << ", Area: " << area << " m²" << endl;
 }
 
-void ZooGraph::removeEnclosure(string name) {
-    if (adjList.find(name) != adjList.end()) {
-        adjList.erase(name);
-        employeesInEnclosure.erase(name);
-        for (auto &p : adjList) {
-            auto &vec = p.second;
-            vec.erase(remove(vec.begin(), vec.end(), name), vec.end());
-        }
-        cout << "Removed enclosure: " << name << endl;
-    }
+string Aviary::getName() const { return name; }
+string Aviary::getType() const { return type; }
+double Aviary::getArea() const { return area; }
+
+void Aviary::setName(const string& n) { name = n; }
+void Aviary::setType(const string& t) { type = t; }
+void Aviary::setArea(double a) { area = a; }
+
+//===========Path===========
+int Path::getLength() const { return getWeight(); }
+
+//===========ZooGraph===========
+void ZooGraph::addAviary(shared_ptr<Aviary> aviary) {
+    addVertex(aviary);
 }
 
-void ZooGraph::addPath(string from, string to) {
-    if (adjList.find(from) != adjList.end() && adjList.find(to) != adjList.end()) {
-        adjList[from].push_back(to);
-        adjList[to].push_back(from);
-        cout << "Added path between " << from << " and " << to << endl;
-    }
+void ZooGraph::removeAviary(const string& id) {
+    removeVertex(id);
 }
 
-void ZooGraph::removePath(string from, string to) {
-    if (adjList.find(from) != adjList.end() && adjList.find(to) != adjList.end()) {
-        auto &vec1 = adjList[from];
-        auto &vec2 = adjList[to];
-        vec1.erase(remove(vec1.begin(), vec1.end(), to), vec1.end());
-        vec2.erase(remove(vec2.begin(), vec2.end(), from), vec2.end());
-        cout << "Removed path between " << from << " and " << to << endl;
-    }
+void ZooGraph::addPath(const string& fromId, const string& toId, int length) {
+    addEdge(fromId, toId, length);
 }
 
-void ZooGraph::assignEmployee(string enclosure, Employee e) {
-    if (adjList.find(enclosure) != adjList.end()) {
-        employeesInEnclosure[enclosure].push_back(e);
-        cout << "Assigned " << e.getName() << " to " << enclosure << endl;
-    }
+void ZooGraph::removePath(const string& fromId, const string& toId) {
+    removeEdge(fromId, toId);
 }
 
-void ZooGraph::printGraph() {
-    cout << "\nZoo Enclosures and Paths:" << endl;
-    for (auto &p : adjList) {
-        cout << p.first << ": ";
-        for (auto &neighbor : p.second) {
-            cout << neighbor << " ";
-        }
-        cout << endl;
+void ZooGraph::printZoo() const {
+    cout << "Zoo structure:\n";
+    for (const auto& [id, aviary] : vertices) {
+        auto av = dynamic_pointer_cast<Aviary>(aviary);
+        if (av) av->printInfo();
     }
-}
 
-void ZooGraph::printEmployees() {
-    cout << "\nEmployees in enclosures:" << endl;
-    for (auto &p : employeesInEnclosure) {
-        cout << p.first << ": " << endl;
-        for (auto &emp : p.second) {
-            cout << "   " << emp.getFullInfo();
-        }
+    cout << "\nPaths:\n";
+    for (const auto& e : edges) {
+        cout << e.getFrom() << " --(" << e.getWeight() << " m)--> " << e.getTo() << endl;
     }
 }

@@ -3,8 +3,14 @@ project(Lab1)
 
 set(CMAKE_CXX_STANDARD 20)
 
+
 add_executable(Lab1 Lab1.cpp
         Employee.h
-        ZooGraph.h
+        Graph.h
         Employee.cpp
+        Graph.cpp
+        sql.h
+        ZooGraph.h
         ZooGraph.cpp)
+
+target_link_libraries(Lab1 PRIVATE Rpcrt4)
