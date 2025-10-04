@@ -46,8 +46,9 @@ int main(int argc, char* argv[]) {
     zoo.addAviary(a2);
     zoo.addAviary(a3);
 
-    zoo.addEdge(a1->getId(), a2->getId(), 50);
-    zoo.addEdge(a2->getId(), a3->getId(), 30);
+    zoo.addPath(a1->getId(), a2->getId(), 50);
+    zoo.addPath(a2->getId(), a3->getId(), 30);
+    zoo.removePath(a2->getId(), a3->getId());
 
     zoo.printZoo();
 

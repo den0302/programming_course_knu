@@ -26,18 +26,24 @@ public:
 
 class Path : public Edge {
 public:
-    Path(const std::string& from, const std::string& to, int length)
+    Path(const std::string& from, const std::string& to, double length)
         : Edge(from, to, length) {}
 
-    int getLength() const;
+    double getLength() const;
 };
 
 class ZooGraph : public Graph {
 public:
+    string getAviaryNameById(const string& id) const;
     void addAviary(std::shared_ptr<Aviary> aviary);
     void removeAviary(const std::string& id);
-    void addPath(const std::string& fromId, const std::string& toId, int length);
+    void addPath(const std::string& fromId, const std::string& toId, double length);
     void removePath(const std::string& fromId, const std::string& toId);
+    vector<string> findShortestPath(const string& startId, const string& endId) const;
+    double distanceBetweenAviaries(const std::string& fromId, const std::string& toId) const;
+    bool isZooConnected() const;
+    void printPathBetweenAviaries(const std::string& fromId, const std::string& toId) const;
+    void printAviaries() const;
     void printZoo() const;
 };
 

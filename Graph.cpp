@@ -38,7 +38,7 @@ string Vertex::getId() const { return id; }
 //===========Edge===========
 string Edge::getFrom() const { return fromId; }
 string Edge::getTo() const { return toId; }
-int Edge::getWeight() const { return weight; }
+double Edge::getWeight() const { return weight; }
 
 //===========Graph===========
 const unordered_map<string, shared_ptr<Vertex>>& Graph::getVertices() const { return vertices; }
@@ -78,7 +78,7 @@ void Graph::setEdges(const vector<Edge>& newEdges) {
     edges = newEdges;
 }
 
-void Graph::addEdge(const string& fromId, const string& toId, int weight = 1) {
+void Graph::addEdge(const string& fromId, const string& toId, double weight = 1.0) {
     if (vertices.count(fromId) && vertices.count(toId)) {
         edges.emplace_back(fromId, toId, weight);
         edges.emplace_back(toId, fromId, weight);
@@ -96,7 +96,7 @@ void Graph::removeEdge(const string& fromId, const string& toId) {
                 edges.end());
 }
 
-vector<string> Graph::findPath(Graph& g, const string& startId, const string& endId) {
+vector<string> Graph::findPath(const string& startId, const string& endId) {
     unordered_map<string, string> parent;
     queue<string> q;
     unordered_map<string, bool> visited;
@@ -109,7 +109,7 @@ vector<string> Graph::findPath(Graph& g, const string& startId, const string& en
 
         if (cur == endId) break;
 
-        for (const auto& e : g.getEdges()) {
+        for (const auto& e : edges) {
             string neighbor;
             if (e.getFrom() == cur) neighbor = e.getTo();
             else if (e.getTo() == cur) neighbor = e.getFrom();
@@ -132,11 +132,11 @@ vector<string> Graph::findPath(Graph& g, const string& startId, const string& en
     return path;
 }
 
-vector<string> Graph::findPathByWeight(Graph& g, const string& startId, const string& endId) {
+vector<string> Graph::findPathByWeight(const string& startId, const string& endId) const {
     unordered_map<string, double> dist;
     unordered_map<string, string> parent;
 
-    for (auto& [id, v] : g.getVertices()) {
+    for (auto& [id, v] : vertices) {
         dist[id] = numeric_limits<double>::infinity();
     }
     dist[startId] = 0;
@@ -149,7 +149,7 @@ vector<string> Graph::findPathByWeight(Graph& g, const string& startId, const st
         auto [d, u] = pq.top(); pq.pop();
         if (d > dist[u]) continue;
 
-        for (const auto& e : g.getEdges()) {
+        for (const auto& e : edges) {
             string neighbor;
             double weight = e.getWeight();
             if (e.getFrom() == u) neighbor = e.getTo();
@@ -172,6 +172,50 @@ vector<string> Graph::findPathByWeight(Graph& g, const string& startId, const st
     path.push_back(startId);
     reverse(path.begin(), path.end());
     return path;
+}
+
+double Graph::distanceBetween(const std::string& fromId, const std::string& toId) const{
+    vector<string> path = findPathByWeight(fromId, toId);
+    if (path.empty()) return -1.0;
+
+    double totalDist = 0.0;
+    for (size_t i = 0; i + 1 < path.size(); ++i) {
+        for (const auto& e : edges) {
+            if ((e.getFrom() == path[i] && e.getTo() == path[i + 1]) ||
+                (e.getTo() == path[i] && e.getFrom() == path[i + 1])) {
+                totalDist += e.getWeight();
+                break;
+                }
+        }
+    }
+    return totalDist;
+}
+
+bool Graph::checkConnectivity() const {
+    if (vertices.empty()) return true;
+
+    unordered_map<string, bool> visited;
+    queue<string> q;
+
+    string startId = vertices.begin()->first;
+    q.push(startId);
+    visited[startId] = true;
+
+    while (!q.empty()) {
+        string cur = q.front(); q.pop();
+        for (const auto& e : edges) {
+            string neighbor;
+            if (e.getFrom() == cur) neighbor = e.getTo();
+            else if (e.getTo() == cur) neighbor = e.getFrom();
+            else continue;
+
+            if (!visited[neighbor]) {
+                visited[neighbor] = true;
+                q.push(neighbor);
+            }
+        }
+    }
+    return visited.size() == vertices.size();
 }
 
 void Graph::printGraph() const {

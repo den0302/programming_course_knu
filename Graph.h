@@ -21,12 +21,12 @@ class Edge {
 private:
     string fromId;
     string toId;
-    int weight;
+    double weight;
 public:
-    Edge(const string& from, const string& to, int w) : fromId(from), toId(to), weight(w) {}
+    Edge(const string& from, const string& to, double w) : fromId(from), toId(to), weight(w) {}
     string getFrom() const;
     string getTo() const;
-    int getWeight() const;
+    double getWeight() const;
 
 };
 
@@ -42,10 +42,12 @@ public:
     void removeVertex(const string& id);
     const vector<Edge>& getEdges() const;
     void setEdges(const vector<Edge>& newEdges);
-    void addEdge(const string& fromId, const string& toId, int weight);
+    void addEdge(const string& fromId, const string& toId, double weight);
     void removeEdge(const string& fromId, const string& toId);
-    vector<string> findPath(Graph& g, const string& startId, const string& endId);
-    vector<string> findPathByWeight(Graph& g, const string& startId, const string& endId);
+    vector<string> findPath(const string& startId, const string& endId);
+    vector<string> findPathByWeight(const string& startId, const string& endId) const;
+    double distanceBetween(const std::string& fromId, const std::string& toId) const;
+    bool checkConnectivity() const;
     void printGraph() const;
 };
 #endif //GRAPH_H
