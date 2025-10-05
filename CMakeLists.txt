@@ -11,6 +11,8 @@ add_executable(Lab1 Lab1.cpp
         Graph.cpp
         sql.h
         ZooGraph.h
-        ZooGraph.cpp)
+        ZooGraph.cpp
+        Creatures.h
+        Creatures.cpp)
 
 target_link_libraries(Lab1 PRIVATE Rpcrt4)

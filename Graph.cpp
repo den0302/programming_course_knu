@@ -4,7 +4,6 @@
 #define byte win_byte_override
 #include <windows.h>
 #undef byte
-#include <rpc.h>
 #include <rpcdce.h>
 #include <memory>
 #include <string>
@@ -43,6 +42,20 @@ double Edge::getWeight() const { return weight; }
 //===========Graph===========
 const unordered_map<string, shared_ptr<Vertex>>& Graph::getVertices() const { return vertices; }
 
+vector<string> Graph::getNeighbors(const string& id) const {
+    vector<string> neighbors;
+
+    for (const auto& e : edges) {
+        if (e.getFrom() == id) {
+            neighbors.push_back(e.getTo());
+        } else if (e.getTo() == id) {
+            neighbors.push_back(e.getFrom());
+        }
+    }
+
+    return neighbors;
+}
+
 void Graph::setVertices(const unordered_map<string, shared_ptr<Vertex>>& newVertices) {
     vertices = newVertices;
 }
@@ -53,9 +66,19 @@ void Graph::addVertex(shared_ptr<Vertex> v) {
 
 shared_ptr<Vertex> Graph::getVertex(const string& id) const {
     auto it = vertices.find(id);
-    if (it != vertices.end()) return it->second;
-    return nullptr;
+    return (it != vertices.end()) ? it->second : nullptr;
 }
+
+const Edge* Graph::getEdge(const string& fromId, const string& toId) const {
+    for (const auto& e : edges) {
+        if ((e.getFrom() == fromId && e.getTo() == toId) ||
+            (e.getFrom() == toId && e.getTo() == fromId)) {
+            return &e; // повертаємо вказівник на знайдене ребро
+            }
+    }
+    return nullptr; // якщо не знайдено
+}
+
 
 void Graph::removeVertex(const string& id) {
     if (!vertices.count(id)) {

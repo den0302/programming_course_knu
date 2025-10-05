@@ -1,48 +1,111 @@
-#include "Graph.h"
 #include "ZooGraph.h"
 #include <iostream>
 #include <set>
 #include <utility>
- using namespace std;
-
-string getAviaryName(const ZooGraph& zoo, const string& uuid) {
-    auto it = zoo.getVertices().find(uuid);
-    if (it == zoo.getVertices().end()) return "";
-
-    auto aviary = std::dynamic_pointer_cast<Aviary>(it->second);
-    if (!aviary) return "";
-
-    return aviary->getName();
-}
+#include <algorithm>
+using namespace std;
 
 //===========Aviary===========
-void Aviary::printInfo() const {
+void Aviary::printInfoAboutAviary() const {
     cout << "Aviary [" << getId() << "]"
          << " Name: " << name
          << ", Type: " << type
-         << ", Area: " << area << " m^2" << endl;
+         << ", Capacity: " << capacity
+         << ", Area: " << area << " m^2";
+         listAnimals();
+    cout << endl;
 }
 
 string Aviary::getName() const { return name; }
 string Aviary::getType() const { return type; }
 double Aviary::getArea() const { return area; }
+int Aviary::getCapacity() const { return capacity; }
+const vector<shared_ptr<Animal>>& Aviary::getAnimals() const { return animals; }
+shared_ptr<Animal> Aviary::getAnimalById(const string& id) const {
+    for (auto& a : animals) {
+        if (a->getId() == id) return a;
+    }
+    return nullptr;
+}
 
 void Aviary::setName(const string& n) { name = n; }
 void Aviary::setType(const string& t) { type = t; }
 void Aviary::setArea(double a) { area = a; }
+void Aviary::setCapacity(int c) { capacity = c; }
+void Aviary::setAnimals(vector<shared_ptr<Animal>> an){animals = an;}
+
+
+bool Aviary::addAnimal(const shared_ptr<Animal>& animal) {
+    if (!canAddAnimal(animal)) return false;
+    animals.push_back(animal);
+    return true;
+}
+
+bool Aviary::removeAnimal(const string& animalId) {
+    for (auto it = animals.begin(); it != animals.end(); ++it) {
+        if ((*it)->getId() == animalId) {
+            animals.erase(it);
+            return true;
+        }
+    }
+    return false;
+}
+
+void Aviary::listAnimals() const {
+    if (animals.empty()) {
+        cout << "Aviary \"" << name << "\" empty.\n";
+        return;
+    }
+       cout << "\n=== Animals in " << name << " ===\n";
+       for (auto& a : animals) a->printInfoAboutAnimal();
+    }
+
+bool Aviary::hasAnimal(const string& animalId) const {
+    for (const auto& a : animals)
+        if (a->getId() == animalId) return true;
+    return false;
+}
+
+bool Aviary::canAddAnimal(const shared_ptr<Animal>& animal) const {
+    if (hasAnimal(animal->getId())) return false;
+    if ((int)animals.size() >= capacity) return false;
+    for (const auto& existing : animals)
+        if (!existing->isCompatibleWith(animal) || !animal->isCompatibleWith(existing))
+            return false;
+    return true;
+}
+
 
 //===========Path===========
 double Path::getLength() const { return getWeight(); }
 
 //===========ZooGraph===========
+const unordered_map<string, shared_ptr<Vertex>>& ZooGraph::getAviaries() const { return getVertices(); }
+
 string ZooGraph::getAviaryNameById(const std::string& id) const {
-    auto it = vertices.find(id);
-    if (it == vertices.end()) return "";
+    auto v = getVertex(id);
+    if (auto aviary = std::dynamic_pointer_cast<Aviary>(v))
+        return aviary->getName();
+    return {};
+}
 
-    auto aviary = dynamic_pointer_cast<Aviary>(it->second);
-    if (!aviary) return "";
+shared_ptr<Vertex> ZooGraph::getAviaryById(const std::string& id) const {
+    return getVertex(id);
+}
 
-    return aviary->getName();
+vector<string> ZooGraph::getNeighborsId(const string& aviaryId) const {
+    return getNeighbors(aviaryId);
+}
+
+vector<string> ZooGraph::getNeighborsNames(const string& aviaryId) const {
+    vector<string> result;
+    vector<string> neighborIds = getNeighbors(aviaryId);
+
+    for (const auto& id : neighborIds) {
+        result.push_back(getAviaryNameById(id));
+    }
+
+    return result;
 }
 
 void ZooGraph::addAviary(shared_ptr<Aviary> aviary) {
@@ -95,9 +158,9 @@ void ZooGraph::printPathBetweenAviaries(const std::string& fromId, const std::st
 void ZooGraph::printAviaries() const {
     cout << "=======================================\n";
     cout << "Aviaries:\n";
-    for (const auto& [id, aviary] : vertices) {
+    for (const auto& [id, aviary] : getVertices()) {
         auto av = dynamic_pointer_cast<Aviary>(aviary);
-        if (av) av->printInfo();
+        if (av) av->printInfoAboutAviary();
     }
     cout << "=======================================\n";
 }
@@ -105,15 +168,15 @@ void ZooGraph::printAviaries() const {
 void ZooGraph::printZoo() const {
     cout << "=======================================\n";
     cout << "Zoo structure:\n";
-    for (const auto& [id, aviary] : vertices) {
+    for (const auto& [id, aviary] : getVertices()) {
         auto av = dynamic_pointer_cast<Aviary>(aviary);
-        if (av) av->printInfo();
+        if (av) av->printInfoAboutAviary();
     }
 
     cout << "\nPaths:\n";
 
     set<pair<string,string>> printed;
-    for (const auto& e : edges) {
+    for (const auto& e : getEdges()) {
         string u = e.getFrom();
         string v = e.getTo();
 
