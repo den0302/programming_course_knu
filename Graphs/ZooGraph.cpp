@@ -53,6 +53,9 @@ bool Aviary::removeAnimal(const string& animalId) {
     }
     return false;
 }
+void Aviary::removeAssignedEmployee() {
+        assignedEmployee.reset();
+    }
 
 void Aviary::listAnimals() const {
     if (animals.empty()) {

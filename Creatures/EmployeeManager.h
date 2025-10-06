@@ -16,6 +16,7 @@ public:
 
     bool assignEmployeeToAviary(const string& employeeId, const string& aviaryId);
     bool removeEmployee(const string& id);
+    bool reassignEmployee(const std::string& empId, const std::string& fromAviaryId, const std::string& toAviaryId);
 
     void listAllEmployees() const;
 };

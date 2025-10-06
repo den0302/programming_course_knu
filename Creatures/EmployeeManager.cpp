@@ -46,6 +46,24 @@ bool EmployeeManager::assignEmployeeToAviary(const string& employeeId, const str
     return true;
 }
 
+bool EmployeeManager::reassignEmployee(const std::string& empId, const std::string& fromAviaryId, const std::string& toAviaryId) {
+    auto fromAviaryBase = zooGraph.getAviaryById(fromAviaryId); // shared_ptr<Vertex>
+    auto toAviaryBase   = zooGraph.getAviaryById(toAviaryId);
+
+    auto fromAviary = std::dynamic_pointer_cast<Aviary>(fromAviaryBase);
+    auto toAviary   = std::dynamic_pointer_cast<Aviary>(toAviaryBase);
+
+    if (!fromAviary || !toAviary) {
+        std::cout << "One of the aviaries not found or wrong type\n";
+        return false;
+    }
+
+    auto emp = getEmployee(empId);
+    fromAviary->removeAssignedEmployee();
+    toAviary->setAssignedEmployee(emp);
+    emp->replaceAviary(fromAviaryId, toAviaryId);
+}
+
 bool EmployeeManager::removeEmployee(const string& id) {
     auto it = employees.find(id);
     if (it == employees.end()) return false;

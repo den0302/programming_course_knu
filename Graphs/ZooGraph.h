@@ -41,6 +41,7 @@ public:
 
     bool addAnimal(const shared_ptr<Animal>& animal) ;
     bool removeAnimal(const string& id);
+    void removeAssignedEmployee();
 
     void listAnimals() const;
 };

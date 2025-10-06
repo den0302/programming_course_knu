@@ -59,6 +59,16 @@ string Employee::listAviaries() const {
     return result;
 }
 
+void Employee::replaceAviary(const std::string& fromAviary, const std::string& toAviary) {
+    for (auto& id : aviaryIds) {
+        if (id == fromAviary) {
+            id = toAviary;
+            return;
+        }
+    }
+    aviaryIds.push_back(toAviary);
+}
+
 const vector<string>& Employee::getAviaryIds() const { return aviaryIds; }
 void Employee::assignAviary(const string& aviary) {
     aviaryIds.push_back(aviary);
