@@ -1,0 +1,50 @@
+[2025-06-10 22:06:58] [INFO] Active loger levels: DEBUG INFO WARN ERROR
+[2025-06-10 22:06:58] [DEBUG] System initialization
+[2025-06-10 22:06:58] [INFO] Loading data from file complete
+[2025-06-10 22:06:58] [WARN] Insufficient memory for cache
+[2025-06-10 22:06:58] [ERROR] Failed to open database
+[2025-06-10 22:06:58] [WARN] Disabled loger levels: DEBUG
+[2025-06-10 22:06:58] [WARN] Disabled loger levels: ERROR
+[2025-06-10 22:06:58] [INFO] Ennabled loger levels: DEBUG
+[2025-06-10 22:06:58] [DEBUG] This will not be printed
+[2025-06-10 22:06:58] [INFO] Continuing program execution
+[2025-06-10 22:07:15] [INFO] Active loger levels: DEBUG INFO WARN ERROR
+[2025-06-10 22:07:15] [DEBUG] System initialization
+[2025-06-10 22:07:15] [INFO] Loading data from file complete
+[2025-06-10 22:07:15] [WARN] Insufficient memory for cache
+[2025-06-10 22:07:15] [ERROR] Failed to open database
+[2025-06-10 22:07:15] [WARN] Disabled loger levels: DEBUG
+[2025-06-10 22:07:15] [WARN] Disabled loger levels: ERROR
+[2025-06-10 22:07:15] [INFO] Ennabled loger levels: DEBUG
+[2025-06-10 22:07:15] [DEBUG] This will not be printed
+[2025-06-10 22:07:15] [INFO] Continuing program execution
+[2025-06-10 22:10:55] [INFO] Active loger levels: DEBUG INFO WARN ERROR
+[2025-06-10 22:10:55] [DEBUG] System initialization
+[2025-06-10 22:10:55] [INFO] Loading data from file complete
+[2025-06-10 22:10:55] [WARN] Insufficient memory for cache
+[2025-06-10 22:10:55] [ERROR] Failed to open database
+[2025-06-10 22:10:55] [WARN] Disabled loger levels: DEBUG
+[2025-06-10 22:10:55] [WARN] Disabled loger levels: ERROR
+[2025-06-10 22:10:55] [INFO] Ennabled loger levels: DEBUG
+[2025-06-10 22:10:55] [DEBUG] This will not be printed
+[2025-06-10 22:10:55] [INFO] Continuing program execution
+[2025-06-10 22:19:31] [INFO] Active loger levels: DEBUG INFO WARN ERROR
+[2025-06-10 22:19:31] [DEBUG] System initialization
+[2025-06-10 22:19:31] [INFO] Loading data from file complete
+[2025-06-10 22:19:31] [WARN] Insufficient memory for cache
+[2025-06-10 22:19:31] [ERROR] Failed to open database
+[2025-06-10 22:19:31] [WARN] Disabled loger levels: DEBUG
+[2025-06-10 22:19:31] [WARN] Disabled loger levels: ERROR
+[2025-06-10 22:19:31] [INFO] Ennabled loger levels: DEBUG
+[2025-06-10 22:19:31] [DEBUG] This will not be printed
+[2025-06-10 22:19:31] [INFO] Continuing program execution
+[2025-06-10 22:22:31] [INFO] Active loger levels: DEBUG INFO WARN ERROR
+[2025-06-10 22:22:31] [DEBUG] System initialization
+[2025-06-10 22:22:31] [INFO] Loading data from file complete
+[2025-06-10 22:22:31] [WARN] Insufficient memory for cache
+[2025-06-10 22:22:31] [ERROR] Failed to open database
+[2025-06-10 22:22:31] [WARN] Disabled loger levels: DEBUG
+[2025-06-10 22:22:31] [WARN] Disabled loger levels: ERROR
+[2025-06-10 22:22:31] [INFO] Ennabled loger levels: DEBUG
+[2025-06-10 22:22:31] [DEBUG] This will not be printed
+[2025-06-10 22:22:31] [INFO] Continuing program execution

@@ -73,10 +73,10 @@ const Edge* Graph::getEdge(const string& fromId, const string& toId) const {
     for (const auto& e : edges) {
         if ((e.getFrom() == fromId && e.getTo() == toId) ||
             (e.getFrom() == toId && e.getTo() == fromId)) {
-            return &e; // повертаємо вказівник на знайдене ребро
+            return &e;
             }
     }
-    return nullptr; // якщо не знайдено
+    return nullptr;
 }
 
 

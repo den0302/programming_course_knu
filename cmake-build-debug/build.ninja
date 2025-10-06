@@ -121,6 +121,12 @@ build CMakeFiles/Lab1.dir/Creatures/EmployeeManager.cpp.obj: CXX_COMPILER__Lab1_
   OBJECT_DIR = CMakeFiles\Lab1.dir
   OBJECT_FILE_DIR = CMakeFiles\Lab1.dir\Creatures
 
+build CMakeFiles/Lab1.dir/Logger/Logger.cpp.obj: CXX_COMPILER__Lab1_unscanned_Debug C$:/Users/Денис/CLionProjects/Lab1/Logger/Logger.cpp || cmake_object_order_depends_target_Lab1
+  DEP_FILE = CMakeFiles\Lab1.dir\Logger\Logger.cpp.obj.d
+  FLAGS = -g -std=gnu++20 -fdiagnostics-color=always
+  OBJECT_DIR = CMakeFiles\Lab1.dir
+  OBJECT_FILE_DIR = CMakeFiles\Lab1.dir\Logger
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target Lab1
@@ -129,7 +135,7 @@ build CMakeFiles/Lab1.dir/Creatures/EmployeeManager.cpp.obj: CXX_COMPILER__Lab1_
 #############################################
 # Link the executable Lab1.exe
 
-build Lab1.exe: CXX_EXECUTABLE_LINKER__Lab1_Debug CMakeFiles/Lab1.dir/Lab1.cpp.obj CMakeFiles/Lab1.dir/Creatures/Animals.cpp.obj CMakeFiles/Lab1.dir/Creatures/Employee.cpp.obj CMakeFiles/Lab1.dir/Graphs/Graph.cpp.obj CMakeFiles/Lab1.dir/Graphs/ZooGraph.cpp.obj CMakeFiles/Lab1.dir/Accounts/Account.cpp.obj CMakeFiles/Lab1.dir/Accounts/AuthManager.cpp.obj CMakeFiles/Lab1.dir/Menus/AdminMenu.cpp.obj CMakeFiles/Lab1.dir/Menus/ManagerMenu.cpp.obj CMakeFiles/Lab1.dir/Menus/Menu.cpp.obj CMakeFiles/Lab1.dir/Creatures/AnimalManager.cpp.obj CMakeFiles/Lab1.dir/Creatures/EmployeeManager.cpp.obj
+build Lab1.exe: CXX_EXECUTABLE_LINKER__Lab1_Debug CMakeFiles/Lab1.dir/Lab1.cpp.obj CMakeFiles/Lab1.dir/Creatures/Animals.cpp.obj CMakeFiles/Lab1.dir/Creatures/Employee.cpp.obj CMakeFiles/Lab1.dir/Graphs/Graph.cpp.obj CMakeFiles/Lab1.dir/Graphs/ZooGraph.cpp.obj CMakeFiles/Lab1.dir/Accounts/Account.cpp.obj CMakeFiles/Lab1.dir/Accounts/AuthManager.cpp.obj CMakeFiles/Lab1.dir/Menus/AdminMenu.cpp.obj CMakeFiles/Lab1.dir/Menus/ManagerMenu.cpp.obj CMakeFiles/Lab1.dir/Menus/Menu.cpp.obj CMakeFiles/Lab1.dir/Creatures/AnimalManager.cpp.obj CMakeFiles/Lab1.dir/Creatures/EmployeeManager.cpp.obj CMakeFiles/Lab1.dir/Logger/Logger.cpp.obj
   FLAGS = -g
   LINK_LIBRARIES = -lRpcrt4  -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
   OBJECT_DIR = CMakeFiles\Lab1.dir

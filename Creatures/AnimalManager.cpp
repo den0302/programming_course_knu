@@ -60,6 +60,32 @@ bool AnimalManager::removeAnimalFromAviary(const string& aviaryId, const string&
     return aviary->removeAnimal(animalId);
 }
 
+bool AnimalManager::removeAnimalFromAnimals(const string& animalId) {
+    auto it = animals.find(animalId);
+    if (it == animals.end()) {
+        cout << "Animal not found.\n";
+        return false;
+    }
+
+    auto& aviaries = zooGraph.getAviaries();
+    for (auto& [aviaryId, vertexPtr] : aviaries) {
+        auto aviaryPtr = dynamic_pointer_cast<Aviary>(vertexPtr);
+        if (!aviaryPtr) continue;
+        if (aviaryPtr->hasAnimal(animalId)) {
+            if (removeAnimalFromAviary(aviaryId, animalId)) {
+                cout << "Animal deleted from aviary \"" << aviaryPtr->getName() << "\".\n";
+            }
+            break;
+        }
+    }
+
+    animals.erase(it);
+    cout << "Animal deleted from system.\n";
+    return true;
+}
+
+
+
 bool AnimalManager::moveAnimalBetweenAviaries(const string& fromAviaryId, const string& toAviaryId, const string& animalId){
     auto fromIt = zooGraph.getAviaries().find(fromAviaryId);
     auto toIt = zooGraph.getAviaries().find(toAviaryId);

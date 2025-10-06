@@ -1,6 +1,16 @@
+#ifdef _WIN32
+#include <windows.h>
+void enableANSI() {
+    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    DWORD dwMode = 0;
+    GetConsoleMode(hOut, &dwMode);
+    dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+    SetConsoleMode(hOut, dwMode);
+}
+#endif
 #include <string>
 #include <iostream>
-#include "Logger.h"
+#include "Logger/Logger.h"
 #include "Graphs/ZooGraph.h"
 #include "Accounts/AuthManager.h"
 #include "Menus/Menu.h"
@@ -8,30 +18,23 @@
 using namespace std;
 
 int main(int argc, char* argv[]) {
+#ifdef _WIN32
+    enableANSI();
+#endif
 
+    Logger logger("zoo_log.txt");
+    logger.listEnabledLevels();
 
-    /*
-    Logger logger;
+    logger.debug("System initialization");
+    logger.info("Loading data from file complete");
+    logger.warn("Insufficient memory for cache");
+    logger.error("Failed to open database");
 
-    // Якщо користувач передав параметр
-    if (argc > 1) {
-        string arg = argv[1];
-        logger.disable(Logger::DEBUG | Logger::INFO | Logger::WARN | Logger::ERROR); // вимикаємо все
-
-        if (arg == "debug")   logger.enable(Logger::DEBUG);
-        else if (arg == "info")  logger.enable(Logger::INFO);
-        else if (arg == "warn")  logger.enable(Logger::WARN);
-        else if (arg == "error") logger.enable(Logger::ERROR);
-        else {
-            cerr << "Невідомий рівень: " << arg << endl;
-            return 1;
-        }
-    }
-
-    logger.debug("Це повідомлення debug");
-    logger.info("Це повідомлення info");
-    logger.warn("Це повідомлення warn");
-    logger.error("Це повідомлення error");*/
+    //logger.disable(Logger::DEBUG); // Disable DEBUG messages
+    //logger.disable(Logger::ERROR);
+    //logger.enable(Logger::DEBUG);
+    //logger.debug("This will not be printed");
+    //logger.info("Continuing program execution");
 
     AuthManager auth;
     ZooGraph zoo;

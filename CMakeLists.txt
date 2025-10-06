@@ -13,7 +13,6 @@ add_executable(Lab1 Lab1.cpp
         Graphs/Graph.cpp
         Graphs/ZooGraph.h
         Graphs/ZooGraph.cpp
-        Logger.h
         sql.h
         Accounts/Account.h
         Accounts/Account.cpp
@@ -28,6 +27,9 @@ add_executable(Lab1 Lab1.cpp
         Creatures/AnimalManager.h
         Creatures/AnimalManager.cpp
         Creatures/EmployeeManager.h
-        Creatures/EmployeeManager.cpp)
+        Creatures/EmployeeManager.cpp
+        Logger/Logger.h
+        Logger/Logger.cpp
+)
 
 target_link_libraries(Lab1 PRIVATE Rpcrt4)
