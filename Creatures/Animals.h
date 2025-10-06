@@ -1,5 +1,5 @@
-#ifndef CREATURES_H
-#define CREATURES_H
+#ifndef ANIMALS_H
+#define ANIMALS_H
 
 #include <string>
 #include <vector>
@@ -15,6 +15,7 @@ protected:
     string name;
     string species;  // вид тварини(лев, тигр, папуга...)
     string type;
+    string aviaryId;
     int age;
     double weight;
     bool isFed = false;
@@ -30,7 +31,9 @@ public:
     int getAge() const;
     double getWeight() const;
     bool getIsFed() const;
+    string getAviaryId() const;
 
+    void setAviaryId(const string& id);
     void setName(const string& n);
     void setAge(int a);
     void setWeight(double w);
@@ -94,29 +97,4 @@ public:
     void move() const override;
 };
 
-class AnimalManager {
-private:
-    ZooGraph& zooGraph;
-    unordered_map<string, shared_ptr<Animal>> animals;
-
-public:
-    AnimalManager(ZooGraph& graph) : zooGraph(graph) {}
-
-    vector<shared_ptr<Animal>> getAnimals() const {return animals}
-
-    void createAnimal(const string& name, const string& species, int age, double weight, const string& type);
-
-    bool addAnimalInAviary(const string& aviaryId, const string& animalId);
-    bool removeAnimalFromAviary(const string& aviaryId, const string& animalId);
-    bool moveAnimalBetweenAviaries(const string& fromAviaryId, const string& toAviaryId, const string& animalId);
-
-    vector<shared_ptr<Animal>> getAnimalsNotInAviaries() const;
-    bool allAnimalsAssigned() const;
-
-    void feedById(const std::string& animalId);
-
-    void listAllAnimals() const;
-};
-
-
-#endif //CREATURES_H
+#endif //ANIMALS_H

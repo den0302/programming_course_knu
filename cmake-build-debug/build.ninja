@@ -55,29 +55,71 @@ build CMakeFiles/Lab1.dir/Lab1.cpp.obj: CXX_COMPILER__Lab1_unscanned_Debug C$:/U
   OBJECT_DIR = CMakeFiles\Lab1.dir
   OBJECT_FILE_DIR = CMakeFiles\Lab1.dir
 
-build CMakeFiles/Lab1.dir/Employee.cpp.obj: CXX_COMPILER__Lab1_unscanned_Debug C$:/Users/Денис/CLionProjects/Lab1/Employee.cpp || cmake_object_order_depends_target_Lab1
-  DEP_FILE = CMakeFiles\Lab1.dir\Employee.cpp.obj.d
+build CMakeFiles/Lab1.dir/Creatures/Animals.cpp.obj: CXX_COMPILER__Lab1_unscanned_Debug C$:/Users/Денис/CLionProjects/Lab1/Creatures/Animals.cpp || cmake_object_order_depends_target_Lab1
+  DEP_FILE = CMakeFiles\Lab1.dir\Creatures\Animals.cpp.obj.d
   FLAGS = -g -std=gnu++20 -fdiagnostics-color=always
   OBJECT_DIR = CMakeFiles\Lab1.dir
-  OBJECT_FILE_DIR = CMakeFiles\Lab1.dir
+  OBJECT_FILE_DIR = CMakeFiles\Lab1.dir\Creatures
 
-build CMakeFiles/Lab1.dir/Graph.cpp.obj: CXX_COMPILER__Lab1_unscanned_Debug C$:/Users/Денис/CLionProjects/Lab1/Graph.cpp || cmake_object_order_depends_target_Lab1
-  DEP_FILE = CMakeFiles\Lab1.dir\Graph.cpp.obj.d
+build CMakeFiles/Lab1.dir/Creatures/Employee.cpp.obj: CXX_COMPILER__Lab1_unscanned_Debug C$:/Users/Денис/CLionProjects/Lab1/Creatures/Employee.cpp || cmake_object_order_depends_target_Lab1
+  DEP_FILE = CMakeFiles\Lab1.dir\Creatures\Employee.cpp.obj.d
   FLAGS = -g -std=gnu++20 -fdiagnostics-color=always
   OBJECT_DIR = CMakeFiles\Lab1.dir
-  OBJECT_FILE_DIR = CMakeFiles\Lab1.dir
+  OBJECT_FILE_DIR = CMakeFiles\Lab1.dir\Creatures
 
-build CMakeFiles/Lab1.dir/ZooGraph.cpp.obj: CXX_COMPILER__Lab1_unscanned_Debug C$:/Users/Денис/CLionProjects/Lab1/ZooGraph.cpp || cmake_object_order_depends_target_Lab1
-  DEP_FILE = CMakeFiles\Lab1.dir\ZooGraph.cpp.obj.d
+build CMakeFiles/Lab1.dir/Graphs/Graph.cpp.obj: CXX_COMPILER__Lab1_unscanned_Debug C$:/Users/Денис/CLionProjects/Lab1/Graphs/Graph.cpp || cmake_object_order_depends_target_Lab1
+  DEP_FILE = CMakeFiles\Lab1.dir\Graphs\Graph.cpp.obj.d
   FLAGS = -g -std=gnu++20 -fdiagnostics-color=always
   OBJECT_DIR = CMakeFiles\Lab1.dir
-  OBJECT_FILE_DIR = CMakeFiles\Lab1.dir
+  OBJECT_FILE_DIR = CMakeFiles\Lab1.dir\Graphs
 
-build CMakeFiles/Lab1.dir/Creatures.cpp.obj: CXX_COMPILER__Lab1_unscanned_Debug C$:/Users/Денис/CLionProjects/Lab1/Creatures.cpp || cmake_object_order_depends_target_Lab1
-  DEP_FILE = CMakeFiles\Lab1.dir\Creatures.cpp.obj.d
+build CMakeFiles/Lab1.dir/Graphs/ZooGraph.cpp.obj: CXX_COMPILER__Lab1_unscanned_Debug C$:/Users/Денис/CLionProjects/Lab1/Graphs/ZooGraph.cpp || cmake_object_order_depends_target_Lab1
+  DEP_FILE = CMakeFiles\Lab1.dir\Graphs\ZooGraph.cpp.obj.d
   FLAGS = -g -std=gnu++20 -fdiagnostics-color=always
   OBJECT_DIR = CMakeFiles\Lab1.dir
-  OBJECT_FILE_DIR = CMakeFiles\Lab1.dir
+  OBJECT_FILE_DIR = CMakeFiles\Lab1.dir\Graphs
+
+build CMakeFiles/Lab1.dir/Accounts/Account.cpp.obj: CXX_COMPILER__Lab1_unscanned_Debug C$:/Users/Денис/CLionProjects/Lab1/Accounts/Account.cpp || cmake_object_order_depends_target_Lab1
+  DEP_FILE = CMakeFiles\Lab1.dir\Accounts\Account.cpp.obj.d
+  FLAGS = -g -std=gnu++20 -fdiagnostics-color=always
+  OBJECT_DIR = CMakeFiles\Lab1.dir
+  OBJECT_FILE_DIR = CMakeFiles\Lab1.dir\Accounts
+
+build CMakeFiles/Lab1.dir/Accounts/AuthManager.cpp.obj: CXX_COMPILER__Lab1_unscanned_Debug C$:/Users/Денис/CLionProjects/Lab1/Accounts/AuthManager.cpp || cmake_object_order_depends_target_Lab1
+  DEP_FILE = CMakeFiles\Lab1.dir\Accounts\AuthManager.cpp.obj.d
+  FLAGS = -g -std=gnu++20 -fdiagnostics-color=always
+  OBJECT_DIR = CMakeFiles\Lab1.dir
+  OBJECT_FILE_DIR = CMakeFiles\Lab1.dir\Accounts
+
+build CMakeFiles/Lab1.dir/Menus/AdminMenu.cpp.obj: CXX_COMPILER__Lab1_unscanned_Debug C$:/Users/Денис/CLionProjects/Lab1/Menus/AdminMenu.cpp || cmake_object_order_depends_target_Lab1
+  DEP_FILE = CMakeFiles\Lab1.dir\Menus\AdminMenu.cpp.obj.d
+  FLAGS = -g -std=gnu++20 -fdiagnostics-color=always
+  OBJECT_DIR = CMakeFiles\Lab1.dir
+  OBJECT_FILE_DIR = CMakeFiles\Lab1.dir\Menus
+
+build CMakeFiles/Lab1.dir/Menus/ManagerMenu.cpp.obj: CXX_COMPILER__Lab1_unscanned_Debug C$:/Users/Денис/CLionProjects/Lab1/Menus/ManagerMenu.cpp || cmake_object_order_depends_target_Lab1
+  DEP_FILE = CMakeFiles\Lab1.dir\Menus\ManagerMenu.cpp.obj.d
+  FLAGS = -g -std=gnu++20 -fdiagnostics-color=always
+  OBJECT_DIR = CMakeFiles\Lab1.dir
+  OBJECT_FILE_DIR = CMakeFiles\Lab1.dir\Menus
+
+build CMakeFiles/Lab1.dir/Menus/Menu.cpp.obj: CXX_COMPILER__Lab1_unscanned_Debug C$:/Users/Денис/CLionProjects/Lab1/Menus/Menu.cpp || cmake_object_order_depends_target_Lab1
+  DEP_FILE = CMakeFiles\Lab1.dir\Menus\Menu.cpp.obj.d
+  FLAGS = -g -std=gnu++20 -fdiagnostics-color=always
+  OBJECT_DIR = CMakeFiles\Lab1.dir
+  OBJECT_FILE_DIR = CMakeFiles\Lab1.dir\Menus
+
+build CMakeFiles/Lab1.dir/Creatures/AnimalManager.cpp.obj: CXX_COMPILER__Lab1_unscanned_Debug C$:/Users/Денис/CLionProjects/Lab1/Creatures/AnimalManager.cpp || cmake_object_order_depends_target_Lab1
+  DEP_FILE = CMakeFiles\Lab1.dir\Creatures\AnimalManager.cpp.obj.d
+  FLAGS = -g -std=gnu++20 -fdiagnostics-color=always
+  OBJECT_DIR = CMakeFiles\Lab1.dir
+  OBJECT_FILE_DIR = CMakeFiles\Lab1.dir\Creatures
+
+build CMakeFiles/Lab1.dir/Creatures/EmployeeManager.cpp.obj: CXX_COMPILER__Lab1_unscanned_Debug C$:/Users/Денис/CLionProjects/Lab1/Creatures/EmployeeManager.cpp || cmake_object_order_depends_target_Lab1
+  DEP_FILE = CMakeFiles\Lab1.dir\Creatures\EmployeeManager.cpp.obj.d
+  FLAGS = -g -std=gnu++20 -fdiagnostics-color=always
+  OBJECT_DIR = CMakeFiles\Lab1.dir
+  OBJECT_FILE_DIR = CMakeFiles\Lab1.dir\Creatures
 
 
 # =============================================================================
@@ -87,7 +129,7 @@ build CMakeFiles/Lab1.dir/Creatures.cpp.obj: CXX_COMPILER__Lab1_unscanned_Debug 
 #############################################
 # Link the executable Lab1.exe
 
-build Lab1.exe: CXX_EXECUTABLE_LINKER__Lab1_Debug CMakeFiles/Lab1.dir/Lab1.cpp.obj CMakeFiles/Lab1.dir/Employee.cpp.obj CMakeFiles/Lab1.dir/Graph.cpp.obj CMakeFiles/Lab1.dir/ZooGraph.cpp.obj CMakeFiles/Lab1.dir/Creatures.cpp.obj
+build Lab1.exe: CXX_EXECUTABLE_LINKER__Lab1_Debug CMakeFiles/Lab1.dir/Lab1.cpp.obj CMakeFiles/Lab1.dir/Creatures/Animals.cpp.obj CMakeFiles/Lab1.dir/Creatures/Employee.cpp.obj CMakeFiles/Lab1.dir/Graphs/Graph.cpp.obj CMakeFiles/Lab1.dir/Graphs/ZooGraph.cpp.obj CMakeFiles/Lab1.dir/Accounts/Account.cpp.obj CMakeFiles/Lab1.dir/Accounts/AuthManager.cpp.obj CMakeFiles/Lab1.dir/Menus/AdminMenu.cpp.obj CMakeFiles/Lab1.dir/Menus/ManagerMenu.cpp.obj CMakeFiles/Lab1.dir/Menus/Menu.cpp.obj CMakeFiles/Lab1.dir/Creatures/AnimalManager.cpp.obj CMakeFiles/Lab1.dir/Creatures/EmployeeManager.cpp.obj
   FLAGS = -g
   LINK_LIBRARIES = -lRpcrt4  -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
   OBJECT_DIR = CMakeFiles\Lab1.dir

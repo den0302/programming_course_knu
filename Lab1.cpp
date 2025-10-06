@@ -1,20 +1,21 @@
 #include <string>
 #include <iostream>
-#include "Employee.h"
 #include "Logger.h"
-#include "ZooGraph.h"
-#include "Creatures.h"
+#include "Graphs/ZooGraph.h"
+#include "Accounts/AuthManager.h"
+#include "Menus/Menu.h"
 
 using namespace std;
 
 int main(int argc, char* argv[]) {
+
 
     /*
     Logger logger;
 
     // Якщо користувач передав параметр
     if (argc > 1) {
-        std::string arg = argv[1];
+        string arg = argv[1];
         logger.disable(Logger::DEBUG | Logger::INFO | Logger::WARN | Logger::ERROR); // вимикаємо все
 
         if (arg == "debug")   logger.enable(Logger::DEBUG);
@@ -22,7 +23,7 @@ int main(int argc, char* argv[]) {
         else if (arg == "warn")  logger.enable(Logger::WARN);
         else if (arg == "error") logger.enable(Logger::ERROR);
         else {
-            cerr << "Невідомий рівень: " << arg << std::endl;
+            cerr << "Невідомий рівень: " << arg << endl;
             return 1;
         }
     }
@@ -32,48 +33,75 @@ int main(int argc, char* argv[]) {
     logger.warn("Це повідомлення warn");
     logger.error("Це повідомлення error");*/
 
-    /*Employee e1, e2, e3;
-    e1.setId(1); e1.setAge(30); e1.setSalary(1000); e1.setExperience(5); e1.setPosition("Keeper"); e1.setName("Ivan");
-    e2.setId(2); e2.setAge(25); e2.setSalary(900); e2.setExperience(2); e2.setPosition("Veterinarian"); e2.setName("Oksana");
-    e3.setId(3); e3.setAge(40); e3.setSalary(1500); e3.setExperience(15); e3.setPosition("Guide"); e3.setName("Petro");*/
+    AuthManager auth;
+    ZooGraph zoo;
 
-    auto zooGraph = make_shared<ZooGraph>();
-    AnimalManager manager(*zooGraph);
+    auto emp1 = make_shared<Employee>("John Smith", 34, 1200, 7);
+    auto emp2 = make_shared<Employee>("Alice Brown", 29, 950, 4);
+    zoo.getEmployeeManager().addEmployee(emp1);
+    zoo.getEmployeeManager().addEmployee(emp2);
 
+    auto av1 = make_shared<Aviary>("Savanna Zone", "Mammal", 120.5, 5);
+    auto av2 = make_shared<Aviary>("Bird Paradise", "Bird", 60.0, 10);
     auto lionAviary = make_shared<Aviary>("Lion's Den", "Mammal", 100.0, 5);
     auto birdHouse = make_shared<Aviary>("Bird House", "Bird", 50.0, 10);
     auto aquarium = make_shared<Aviary>("Aquarium", "Fish", 200.0, 20);
 
-    zooGraph->addAviary(lionAviary);
-    zooGraph->addAviary(birdHouse);
-    zooGraph->addAviary(aquarium);
+    zoo.addAviary(av1);
+    zoo.addAviary(av2);
+    zoo.addAviary(lionAviary);
+    zoo.addAviary(birdHouse);
+    zoo.addAviary(aquarium);
+
+    zoo.getEmployeeManager().assignEmployeeToAviary(emp1->getId(), av1->getId());
+    zoo.getEmployeeManager().assignEmployeeToAviary(emp2->getId(), av2->getId());
+
 
 
     // types: Mammal Reptile Bird Fish Amphibian Arachnid Insect
+    zoo.getAnimalManager().createAnimal("Leo", "Lion", 5, 190.0, "Mammal");
+    zoo.getAnimalManager().createAnimal("Polly", "Parrot", 2, 1.0, "Bird");
+    zoo.getAnimalManager().createAnimal("Nemo", "Clownfish", 1, 0.2, "Fish");
+    zoo.getAnimalManager().createAnimal("Frog", "Frog", 1, 0.5, "Amphibian");
+    zoo.getAnimalManager().createAnimal("Spidey", "Spider", 1, 0.1, "Arachnid");
+    zoo.getAnimalManager().createAnimal("Buzz", "Bee", 0, 0.05, "Insect");
 
-    manager.createAnimal("Leo", "Lion", 5, 190.0, "Mammal");
-    manager.createAnimal("Polly", "Parrot", 2, 1.0, "Bird");
-    manager.createAnimal("Nemo", "Clownfish", 1, 0.2, "Fish");
-    manager.createAnimal("Frog", "Frog", 1, 0.5, "Amphibian");
-    manager.createAnimal("Spidey", "Spider", 1, 0.1, "Arachnid");
-    manager.createAnimal("Buzz", "Bee", 0, 0.05, "Insect");
-
-    auto animals = manager.getAnimalsNotInAviaries();
+    auto animals = zoo.getAnimalManager().getAnimalsNotInAviaries();
     for (auto& a : animals) {
-        if (a->getSpecies() == "Lion") manager.addAnimalInAviary(lionAviary->getId(), a->getId());
-        else if (a->getSpecies() == "Parrot") manager.addAnimalInAviary(birdHouse->getId(), a->getId());
-        else if (a->getSpecies() == "Clownfish") manager.addAnimalInAviary(aquarium->getId(), a->getId());
+        if (a->getSpecies() == "Lion") zoo.getAnimalManager().addAnimalInAviary(av1->getId(), a->getId());
+        else if (a->getSpecies() == "Parrot") zoo.getAnimalManager().addAnimalInAviary(birdHouse->getId(), a->getId());
+        else if (a->getSpecies() == "Clownfish") zoo.getAnimalManager().addAnimalInAviary(aquarium->getId(), a->getId());
     }
 
-    manager.listAllAnimals();
+    zoo.addPath(lionAviary->getId(), birdHouse->getId(), 50);
+    zoo.addPath(birdHouse->getId(), aquarium->getId(), 30);
 
-    lionAviary->listAnimals();
-    birdHouse->listAnimals();
-    aquarium->listAnimals();
+    zoo.listEmployees();
+    zoo.listAnimals();
 
-    zooGraph->addPath(lionAviary->getId(), birdHouse->getId(), 50);
-    zooGraph->addPath(birdHouse->getId(), aquarium->getId(), 30);
-    zooGraph->printZoo();
+    zoo.printZoo();
 
+    while (true) {
+        auto res = auth.authenticateInteractive();
+        if (!res.has_value()) {
+            cout << "Try again? (y/n): ";
+            char c; cin >> c;
+            if (c == 'y' || c == 'Y') continue;
+            break; 
+        }
+
+        string username = res->first;
+        Role role = res->second;
+
+        Menu::showFor(username, role, auth, zoo );
+
+        cout << "Exit the program or return to login? (q - exit, any other key - login): ";
+        char c; cin >> c;
+        if (c == 'q' || c == 'Q') break;
+    }
+
+    cout << "Bye!\n";
+
+    
     return 0;
 }

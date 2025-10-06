@@ -11,11 +11,12 @@ void Aviary::printInfoAboutAviary() const {
          << " Name: " << name
          << ", Type: " << type
          << ", Capacity: " << capacity
-         << ", Area: " << area << " m^2";
+         << ", Area: " << area << " m^2"
+         << ", Employee: " << (assignedEmployee ? assignedEmployee->getId() : "no employee");
          listAnimals();
     cout << endl;
 }
-
+string Aviary::getIdAviary() const { return getId(); }
 string Aviary::getName() const { return name; }
 string Aviary::getType() const { return type; }
 double Aviary::getArea() const { return area; }
@@ -27,12 +28,14 @@ shared_ptr<Animal> Aviary::getAnimalById(const string& id) const {
     }
     return nullptr;
 }
+shared_ptr<Employee> Aviary::getAssignedEmployee() const { return assignedEmployee; }
 
 void Aviary::setName(const string& n) { name = n; }
 void Aviary::setType(const string& t) { type = t; }
 void Aviary::setArea(double a) { area = a; }
 void Aviary::setCapacity(int c) { capacity = c; }
 void Aviary::setAnimals(vector<shared_ptr<Animal>> an){animals = an;}
+void Aviary::setAssignedEmployee(const shared_ptr<Employee>& emp) { assignedEmployee = emp; }
 
 
 bool Aviary::addAnimal(const shared_ptr<Animal>& animal) {
@@ -53,7 +56,7 @@ bool Aviary::removeAnimal(const string& animalId) {
 
 void Aviary::listAnimals() const {
     if (animals.empty()) {
-        cout << "Aviary \"" << name << "\" empty.\n";
+        cout << "\nAviary \"" << name << "\" empty.\n";
         return;
     }
        cout << "\n=== Animals in " << name << " ===\n";
@@ -80,16 +83,18 @@ bool Aviary::canAddAnimal(const shared_ptr<Animal>& animal) const {
 double Path::getLength() const { return getWeight(); }
 
 //===========ZooGraph===========
+AnimalManager& ZooGraph::getAnimalManager() { return animalManager; } 
+EmployeeManager& ZooGraph::getEmployeeManager() { return employeeManager; }
 const unordered_map<string, shared_ptr<Vertex>>& ZooGraph::getAviaries() const { return getVertices(); }
 
-string ZooGraph::getAviaryNameById(const std::string& id) const {
+string ZooGraph::getAviaryNameById(const string& id) const {
     auto v = getVertex(id);
-    if (auto aviary = std::dynamic_pointer_cast<Aviary>(v))
+    if (auto aviary = dynamic_pointer_cast<Aviary>(v))
         return aviary->getName();
     return {};
 }
 
-shared_ptr<Vertex> ZooGraph::getAviaryById(const std::string& id) const {
+shared_ptr<Vertex> ZooGraph::getAviaryById(const string& id) const {
     return getVertex(id);
 }
 
@@ -128,7 +133,7 @@ vector<string> ZooGraph::findShortestPath(const string& startId, const string& e
     return findPathByWeight(startId, endId);
 }
 
-double ZooGraph::distanceBetweenAviaries(const std::string& fromId, const std::string& toId) const{
+double ZooGraph::distanceBetweenAviaries(const string& fromId, const string& toId) const{
     return distanceBetween(fromId, toId);
 }
 
@@ -136,7 +141,7 @@ bool ZooGraph::isZooConnected() const {
     return checkConnectivity();
 }
 
-void ZooGraph::printPathBetweenAviaries(const std::string& fromId, const std::string& toId) const {
+void ZooGraph::printPathBetweenAviaries(const string& fromId, const string& toId) const {
     vector<string> path = findPathByWeight(fromId, toId);
 
     if (path.empty()) {
@@ -153,6 +158,14 @@ void ZooGraph::printPathBetweenAviaries(const std::string& fromId, const std::st
 
     double totalDist = distanceBetween(path.front(), path.back());
     cout << "Total distance: " << totalDist << " m" << endl;
+}
+
+void ZooGraph::listAnimals() const {
+    animalManager.listAllAnimals();
+}
+
+void ZooGraph::listEmployees() const {
+    employeeManager.listAllEmployees();
 }
 
 void ZooGraph::printAviaries() const {
