@@ -30,7 +30,7 @@ string Logger::levelToColor(Level lvl) const {
 }
 
 Logger::Logger(const string& filename)
-    : flags(DEBUG | INFO | WARN | ERROR) // за замовчуванням — усі активні
+    : flags(INFO | WARN | ERROR)
 {
     file.open(filename, ios::app);
     if (!file.is_open()) {

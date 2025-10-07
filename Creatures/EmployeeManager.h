@@ -13,10 +13,13 @@ public:
 
     shared_ptr<Employee> getEmployee(const string& id) const;
     const unordered_map<string, shared_ptr<Employee>>& getAllEmployees() const;
+    vector<shared_ptr<Employee>> getUnassignedEmployees() const;
+
 
     bool assignEmployeeToAviary(const string& employeeId, const string& aviaryId);
     bool removeEmployee(const string& id);
-    bool reassignEmployee(const std::string& empId, const std::string& fromAviaryId, const std::string& toAviaryId);
+    bool reassignEmployee(const string& empId, const string& fromAviaryId, const string& toAviaryId);
+    bool removeEmployeeFromAviary(const string& employeeId, const string& aviaryId);
 
     void listAllEmployees() const;
 };

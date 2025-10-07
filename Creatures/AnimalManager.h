@@ -1,6 +1,8 @@
 #ifndef ANIMALMANAGER_H
 #define ANIMALMANAGER_H
 #include "Animals.h"
+#include <unordered_map>
+#include <vector>
 
 class ZooGraph;
 
@@ -10,7 +12,7 @@ private:
     unordered_map<string, shared_ptr<Animal>> animals;
 
 public:
-    AnimalManager(ZooGraph& graph) : zooGraph(graph) {}
+    explicit AnimalManager(ZooGraph& graph) : zooGraph(graph) {}
 
     unordered_map<string, shared_ptr<Animal>> getAnimals() const;
 

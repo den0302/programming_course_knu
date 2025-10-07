@@ -30,6 +30,8 @@ add_executable(Lab1 Lab1.cpp
         Creatures/EmployeeManager.cpp
         Logger/Logger.h
         Logger/Logger.cpp
+        Logger/LoggerGlobal.h
+        Logger/LoggerGlobal.cpp
 )
 
 target_link_libraries(Lab1 PRIVATE Rpcrt4)

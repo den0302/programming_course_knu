@@ -2,9 +2,7 @@
 #define ANIMALS_H
 
 #include <string>
-#include <vector>
 #include <memory>
-#include <unordered_map>
 class ZooGraph;
 
 using namespace std;

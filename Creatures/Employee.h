@@ -29,7 +29,9 @@ public:
 
     string getFullInfoAboutEmployee() const;
     string listAviaries() const ;
-    void replaceAviary(const std::string& fromAviary, const std::string& toAviary);
+    void replaceAviary(const string& fromAviary, const string& toAviary);
+    void removeAviary(const string& aviaryId);
+    bool isAssigned() const;
 
     const vector<string>& getAviaryIds() const;
     void assignAviary(const string& aviary);

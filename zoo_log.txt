@@ -48,3 +48,60 @@
 [2025-06-10 22:22:31] [INFO] Ennabled loger levels: DEBUG
 [2025-06-10 22:22:31] [DEBUG] This will not be printed
 [2025-06-10 22:22:31] [INFO] Continuing program execution
+[2025-07-10 00:20:03] [INFO] Active loger levels: DEBUG INFO WARN ERROR
+[2025-07-10 00:20:03] [WARN] Disabled loger levels: DEBUG
+[2025-07-10 00:20:03] [INFO] Loading data from file complete
+[2025-07-10 00:20:03] [WARN] Insufficient memory for cache
+[2025-07-10 00:20:03] [ERROR] Failed to open database
+[2025-07-10 00:20:03] [INFO] Created Employee: John Smith (ID: f13f32cb-316b-42bc-8b32-c32146f779a8)
+[2025-07-10 00:20:03] [INFO] Created Employee: Alice Brown (ID: 6db4e79b-4157-458c-88d4-96dae26c72b3)
+[2025-07-10 00:20:03] [INFO] Aviary added: Savanna Zone
+[2025-07-10 00:20:03] [INFO] Aviary added: Bird Paradise
+[2025-07-10 00:20:03] [INFO] Aviary added: Lion's Den
+[2025-07-10 00:20:03] [INFO] Aviary added: Bird House
+[2025-07-10 00:20:03] [INFO] Aviary added: Aquarium
+[2025-07-10 00:20:03] [INFO] Assigned employee f13f32cb-316b-42bc-8b32-c32146f779a8 to aviary Savanna Zone
+[2025-07-10 00:20:03] [INFO] Employee John Smith assigned to aviary bb85e396-2912-4612-b082-e33471ab8fde
+[2025-07-10 00:20:03] [INFO] Assigned employee 6db4e79b-4157-458c-88d4-96dae26c72b3 to aviary Bird Paradise
+[2025-07-10 00:20:03] [INFO] Employee Alice Brown assigned to aviary ac0dfa4f-6630-4741-9908-2f69faf9e0e9
+[2025-07-10 00:20:03] [INFO] Created Animal: Leo (Lion), ID: 111a0149-0411-4bde-94b5-ccb9178970bb
+[2025-07-10 00:20:03] [INFO] Created Mammal: Leo (Lion)
+[2025-07-10 00:20:03] [INFO] Created Animal: Polly (Parrot), ID: 20ff0ecd-c6bb-4c15-be81-37f01d6bd1b7
+[2025-07-10 00:20:03] [INFO] Created Bird: Polly (Parrot)
+[2025-07-10 00:20:03] [INFO] Created Animal: Nemo (Clownfish), ID: cee4e8f2-da59-4e08-860d-dc849742706f
+[2025-07-10 00:20:03] [INFO] Created Fish: Nemo (Clownfish)
+[2025-07-10 00:20:03] [INFO] Created Animal: Frog (Frog), ID: 61f42864-1126-49ab-b104-afade9d6def4
+[2025-07-10 00:20:03] [INFO] Created Amphibian: Frog (Frog)
+[2025-07-10 00:20:03] [INFO] Created Animal: Spidey (Spider), ID: 2aba00a2-54b1-4cea-9e9c-f618d677dfae
+[2025-07-10 00:20:03] [INFO] Created Arachnid: Spidey (Spider)
+[2025-07-10 00:20:03] [INFO] Created Animal: Buzz (Bee), ID: 7180f28d-52c5-4bb5-b632-7ce09f6a51a8
+[2025-07-10 00:20:03] [INFO] Created Insect: Buzz (Bee)
+[2025-07-10 00:20:03] [INFO] Animal added to aviary Aquarium: Nemo
+[2025-07-10 00:20:03] [INFO] Animal Nemo assigned to aviary 3e763272-35d4-4f63-ab0c-2b55ef95c87f
+[2025-07-10 00:20:03] [INFO] Animal added to aviary Bird House: Polly
+[2025-07-10 00:20:03] [INFO] Animal Polly assigned to aviary 18f6c9c7-3ae0-453a-88b9-619de3f1960c
+[2025-07-10 00:20:03] [INFO] Animal added to aviary Savanna Zone: Leo
+[2025-07-10 00:20:03] [INFO] Animal Leo assigned to aviary bb85e396-2912-4612-b082-e33471ab8fde
+[2025-07-10 00:20:03] [INFO] Path added: e60eee53-19fd-4a3d-97f5-76de7e3557e2 <-> 18f6c9c7-3ae0-453a-88b9-619de3f1960c (50.000000 m)
+[2025-07-10 00:20:03] [INFO] Path added: 18f6c9c7-3ae0-453a-88b9-619de3f1960c <-> 3e763272-35d4-4f63-ab0c-2b55ef95c87f (30.000000 m)
+[2025-07-10 00:20:03] [INFO] Full info requested for Employee: Alice Brown
+[2025-07-10 00:20:03] [INFO] Full info requested for Employee: John Smith
+[2025-07-10 00:20:03] [INFO] Printing full zoo structure
+[2025-07-10 00:20:03] [INFO] Zoo printed successfully
+[2025-07-10 00:55:03] [INFO] Ennabled loger levels: INFO
+[2025-07-10 00:57:13] [INFO] Ennabled loger levels: INFO
+[2025-07-10 00:57:13] [INFO] Ennabled loger levels: WARN
+[2025-07-10 00:57:13] [INFO] Ennabled loger levels: ERROR
+[2025-07-10 00:57:23] [INFO] Ennabled loger levels: DEBUG
+[2025-07-10 01:00:34] [INFO] Ennabled loger levels: INFO
+[2025-07-10 01:00:34] [INFO] Ennabled loger levels: WARN
+[2025-07-10 01:00:34] [INFO] Ennabled loger levels: ERROR
+[2025-07-10 01:01:00] [INFO] Ennabled loger levels: DEBUG
+[2025-07-10 01:01:00] [INFO] Ennabled loger levels: INFO
+[2025-07-10 01:01:00] [INFO] Ennabled loger levels: WARN
+[2025-07-10 01:01:00] [INFO] Ennabled loger levels: ERROR
+[2025-07-10 01:01:06] [INFO] Ennabled loger levels: DEBUG
+[2025-07-10 01:01:06] [INFO] Ennabled loger levels: INFO
+[2025-07-10 01:01:06] [INFO] Ennabled loger levels: WARN
+[2025-07-10 01:01:06] [INFO] Ennabled loger levels: ERROR
+[2025-07-10 01:01:09] [INFO] Ennabled loger levels: DEBUG
