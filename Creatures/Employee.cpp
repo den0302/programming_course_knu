@@ -6,7 +6,15 @@
 #include <iostream>
 #include <rpcdce.h>
 #include <algorithm>
+#include <sstream>
 #include "../Logger/LoggerGlobal.h"
+
+Employee::Employee(const string& id, const string& name, int age, int salary, int experience, const string& aviaryIds)
+    : id(id), name(name), age(age), salary(salary), experience(experience) {
+    setAssignedAviaries(aviaryIds);
+    logger.info("Loading Employee from file with id: " + id);
+}
+
 
 Employee::Employee(const string& name, int age, int salary, int experience)
         : name(name), age(age), salary(salary), experience(experience) {
@@ -53,6 +61,69 @@ int Employee::getExperience() const {
 string Employee::getName() const {
     logger.debug("getName() called for Employee: " + name);
     return name;
+}
+
+string Employee::getAssignedAviaries() const {
+    if (aviaryIds.empty()) {
+        logger.debug("getAssignedAviaries: no assigned aviaries");
+        return "";
+    }
+
+    stringstream ss;
+    for (size_t i = 0; i < aviaryIds.size(); ++i) {
+        ss << aviaryIds[i];
+        if (i + 1 < aviaryIds.size())
+            ss << ",";
+    }
+
+    logger.debug("getAssignedAviaries: " + ss.str());
+    return ss.str();
+}
+
+void Employee::setAssignedAviaries(const string& assignedAviaries) {
+    logger.debug("setAssignedAviaries input: [" + assignedAviaries + "]");
+    aviaryIds.clear();
+
+    if (assignedAviaries.empty()) return;
+
+    stringstream ss(assignedAviaries);
+    string aviaryId;
+
+    while (getline(ss, aviaryId, ',')) {
+        size_t start = aviaryId.find_first_not_of(" \t");
+        size_t end   = aviaryId.find_last_not_of(" \t");
+        if (start != string::npos && end != string::npos)
+            aviaryId = aviaryId.substr(start, end - start + 1);
+        else
+            aviaryId.clear();
+
+        if (!aviaryId.empty())
+            aviaryIds.push_back(aviaryId);
+    }
+
+    logger.debug("Parsed " + to_string(aviaryIds.size()) + " aviaries");
+}
+
+
+void Employee::setAssignedAviaries(vector<string> assignedAviaries) {
+    aviaryIds = assignedAviaries;
+}
+
+vector<string> Employee::assignedAviaries(const string& assignedAviaries) {
+    logger.debug("setAssignedAviary: " + assignedAviaries + ";");
+    vector<string> aviaryIds;
+    aviaryIds.clear();
+    stringstream ss(assignedAviaries);
+    string aviaryId;
+
+    while (getline(ss, aviaryId, ',')) {
+        aviaryId.erase(0, aviaryId.find_first_not_of(" \t"));
+        aviaryId.erase(aviaryId.find_last_not_of(" \t") + 1);
+
+        if (!aviaryId.empty())
+            aviaryIds.push_back(aviaryId);
+    }
+    return aviaryIds;
 }
 
 string Employee::getFullInfoAboutEmployee() const {

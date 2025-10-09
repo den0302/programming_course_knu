@@ -12,6 +12,7 @@ private:
     string id;
 public:
     Vertex();
+    explicit Vertex(string& id);
     virtual ~Vertex();
     string getId() const;
 };
@@ -34,7 +35,7 @@ class Graph {
 private:
     unordered_map<string, shared_ptr<Vertex>> vertices;
     vector<Edge> edges;
-public:
+protected:
     const unordered_map<string, shared_ptr<Vertex>>& getVertices() const;
     const vector<Edge>& getEdges() const;
     const Edge* getEdge(const string& fromId, const string& toId) const;

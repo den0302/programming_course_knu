@@ -91,8 +91,16 @@ void AdminMenu::show(const string& username, AuthManager& auth, ZooGraph& zoo) {
                 cout << "Species: "; cin >> species;
                 cout << "Age: "; cin >> age;
                 cout << "Weight: "; cin >> weight;
-                cout << "Type: "; cin >> type;
-
+                cout << "Type(Mammal Reptile Bird Fish Amphibian Arachnid Insect): "; cin >> type;
+                if (type != "Mammal" &&
+                    type !=  "Reptile" &&
+                    type !=   "Bird" &&
+                    type !=   "Fish" &&
+                    type !=   "Amphibian" &&
+                    type !=   "Arachnid" &&
+                    type !=   "Insect") {
+                    logger.error("Wrong type animal"); break;
+                }
                 zoo.getAnimalManager().createAnimal(name, species, age, weight, type);
                 ostringstream oss;
                 oss << "[" << username << "] Created animal: " << name << " (" << species << ")";
@@ -227,7 +235,7 @@ void AdminMenu::show(const string& username, AuthManager& auth, ZooGraph& zoo) {
 
             case 18: {
                 logger.listEnabledLevels();
-                cout << "1. Enable Level\n2. Disable Level\nChoice: ";
+                cout << "1. Enable Level\n2. Disable Level\nAny button to move back \nChoice: ";
                 int ch2; cin >> ch2;
 
                 switch (ch2) {

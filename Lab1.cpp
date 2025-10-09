@@ -3,6 +3,7 @@
 #include "Logger/LoggerGlobal.h"
 #include "Graphs/ZooGraph.h"
 #include "Menus/Menu.h"
+#include "DatabaseManager/AccountRepository.h"
 #ifdef _WIN32
 #include <windows.h>
 void enableANSI() {
@@ -22,20 +23,22 @@ int main() {
         enableANSI();
     #endif
 
-    AuthManager auth;
+    DatabaseManager db("zoo.db");
+    AccountRepository accRepo(db);
+    AuthManager auth(accRepo);
     ZooGraph zoo;
 
     while (true) {
-        auto res = auth.authenticateInteractive();
-        if (!res.has_value()) {
+        auto session = auth.authenticateInteractive();
+        if (!session.has_value()) {
             cout << "Try again? (y/n): ";
             char c; cin >> c;
             if (c == 'y' || c == 'Y') continue;
             break; 
         }
 
-        string username = res->first;
-        Role role = res->second;
+        string username = session->first;
+        Role role = session->second;
 
         Menu::showFor(username, role, auth, zoo );
 

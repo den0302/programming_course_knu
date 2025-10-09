@@ -1,66 +1,27 @@
 #include "AuthManager.h"
 #include "../Logger/LoggerGlobal.h"
-#include <fstream>
+#include "../DatabaseManager/AccountRepository.h"
 #include <iostream>
-#include <algorithm>
 #include <functional>
+#include <algorithm>
 
 using namespace std;
 
-AuthManager::AuthManager() {
-    logger.debug("Initializing AuthManager...");
-    loadAccounts();
+AuthManager::AuthManager(AccountRepository& repository)
+    : repo(repository) {
+    logger.debug("Initializing AuthManager with database-backed repository...");
+    repo.initTable();
 
-    if (accounts.empty()) {
-        logger.warn("No accounts found. Creating default ones.");
+    auto all = repo.getAllAccounts();
+    if (all.empty()) {
+        logger.warn("No accounts found in DB. Creating default accounts...");
         addAccount("admin", "admin", Role::ADMIN);
         addAccount("manager", "manager", Role::MANAGER);
         addAccount("employee", "employee", Role::EMPLOYEE);
-        saveAccounts();
-        logger.info("Default accounts created and saved.");
+        logger.info("Default accounts created in database.");
     } else {
-        logger.info("Accounts loaded successfully (" + to_string(accounts.size()) + " found).");
+        logger.info("Loaded " + to_string(all.size()) + " accounts from database.");
     }
-}
-
-AuthManager::~AuthManager() {
-    logger.debug("Saving accounts before shutdown...");
-    saveAccounts();
-}
-
-void AuthManager::loadAccounts() {
-    logger.debug("Loading accounts from file: " + accountsFile);
-    accounts.clear();
-    ifstream f(accountsFile);
-    if (!f) {
-        logger.warn("Accounts file not found: " + accountsFile);
-        return;
-    }
-
-    string line;
-    while (getline(f, line)) {
-        if (line.empty()) continue;
-        try {
-            accounts.push_back(Account::deserialize(line));
-        } catch (...) {
-            logger.error("Failed to deserialize account line: " + line);
-        }
-    }
-
-    logger.info("Loaded " + to_string(accounts.size()) + " accounts from file.");
-}
-
-void AuthManager::saveAccounts() const {
-    logger.debug("Saving accounts to file: " + accountsFile);
-    ofstream f(accountsFile, ios::trunc);
-    if (!f) {
-        logger.error("Failed to open file for saving accounts: " + accountsFile);
-        return;
-    }
-    for (const auto& a : accounts) {
-        f << a.serialize() << "\n";
-    }
-    logger.info("Accounts successfully saved (" + to_string(accounts.size()) + " records).");
 }
 
 optional<pair<string, Role>> AuthManager::authenticateInteractive() {
@@ -72,10 +33,12 @@ optional<pair<string, Role>> AuthManager::authenticateInteractive() {
     cin >> pass;
 
     size_t h = hash<string>{}(pass);
-    logger.debug("User attempting login: " + user);
+    logger.debug("Attempting login for user: " + user);
 
-    for (const auto& acc : accounts) {
-        if (acc.getUsername() == user && acc.getPasswordHash() == h) {
+    auto accOpt = repo.getAccount(user);
+    if (accOpt.has_value()) {
+        const Account& acc = accOpt.value();
+        if (acc.getPasswordHash() == h) {
             logger.info("Login SUCCESS: " + user + " (" + Account::roleToString(acc.getRole()) + ")");
             cout << "Authorization successful. Welcome, " << user
                  << " (" << Account::roleToString(acc.getRole()) << ")\n";
@@ -96,103 +59,99 @@ bool AuthManager::addAccount(const string& username, const string& password, Rol
     }
 
     size_t h = hash<string>{}(password);
-    accounts.emplace_back(username, h, role);
-    saveAccounts();
-
-    logger.info("Created new account: " + username + " [role=" + Account::roleToString(role) + "]");
-    return true;
+    bool ok = repo.addAccount(username, h, role);
+    if (ok)
+        logger.info("Created new account: " + username + " [role=" + Account::roleToString(role) + "]");
+    else
+        logger.error("Failed to add account: " + username);
+    return ok;
 }
 
 bool AuthManager::removeAccount(const string& username) {
     logger.debug("Attempting to remove account: " + username);
-    auto it = remove_if(accounts.begin(), accounts.end(),
-                        [&](const Account& a) { return a.getUsername() == username; });
-
-    if (it == accounts.end()) {
-        logger.warn("Account not found for removal: " + username);
+    if (!accountExists(username)) {
+        logger.warn("Account not found: " + username);
         return false;
     }
 
-    accounts.erase(it, accounts.end());
-    saveAccounts();
-
-    logger.info("Removed account: " + username);
-    return true;
+    bool ok = repo.removeAccount(username);
+    if (ok)
+        logger.info("Account removed: " + username);
+    else
+        logger.error("Failed to remove account: " + username);
+    return ok;
 }
 
 bool AuthManager::editAccount(const string& username) {
     logger.debug("Editing account: " + username);
 
-    for (auto& acc : accounts) {
-        if (acc.getUsername() == username) {
-            cout << "Edit account \"" << username << "\"\n";
-            cout << "1. Edit login\n";
-            cout << "2. Edit password\n";
-            cout << "3. Edit role\n";
-            cout << "Choice: ";
-            int ch;
-            cin >> ch;
-
-            if (ch == 1) {
-                string newName;
-                cout << "New login: ";
-                cin >> newName;
-
-                if (accountExists(newName)) {
-                    logger.warn("Attempted to rename to existing username: " + newName);
-                    cout << "This login already exists!\n";
-                    return false;
-                }
-
-                logger.info("Changed username: " + username + " → " + newName);
-                acc = Account(newName, acc.getPasswordHash(), acc.getRole());
-            } 
-            else if (ch == 2) {
-                string newPass;
-                cout << "New password: ";
-                cin >> newPass;
-                size_t h = hash<string>{}(newPass);
-                acc = Account(acc.getUsername(), h, acc.getRole());
-                logger.info("Changed password for user: " + username);
-            } 
-            else if (ch == 3) {
-                int r;
-                cout << "New role (0=Admin,1=Manager,2=Employee): ";
-                cin >> r;
-                Role newRole = Account::intToRole(r);
-                acc = Account(acc.getUsername(), acc.getPasswordHash(), newRole);
-                logger.info("Changed role for user " + username + " → " + Account::roleToString(newRole));
-            } 
-            else {
-                logger.warn("Invalid edit option selected for user: " + username);
-                cout << "Wrong choice.\n";
-                return false;
-            }
-
-            saveAccounts();
-            logger.info("Account changes saved for: " + username);
-            cout << "Changes saved.\n";
-            return true;
-        }
+    auto accOpt = repo.getAccount(username);
+    if (!accOpt.has_value()) {
+        cout << "Account not found.\n";
+        logger.warn("Edit failed: account not found (" + username + ")");
+        return false;
     }
 
-    logger.warn("Edit failed: account not found (" + username + ")");
-    cout << "Account not found.\n";
-    return false;
+    auto acc = accOpt.value();
+    cout << "Edit account \"" << username << "\"\n";
+    cout << "1. Edit login\n";
+    cout << "2. Edit password\n";
+    cout << "3. Edit role\n";
+    cout << "Choice: ";
+    int ch;
+    cin >> ch;
+
+    string newUsername = username;
+    optional<size_t> newHash = nullopt;
+    optional<Role> newRole = nullopt;
+
+    if (ch == 1) {
+        cout << "New login: ";
+        cin >> newUsername;
+        if (accountExists(newUsername)) {
+            cout << "This login already exists!\n";
+            logger.warn("Attempted rename to existing username: " + newUsername);
+            return false;
+        }
+    } else if (ch == 2) {
+        string newPass;
+        cout << "New password: ";
+        cin >> newPass;
+        newHash = hash<string>{}(newPass);
+    } else if (ch == 3) {
+        int r;
+        cout << "New role (0=Admin, 1=Manager, 2=Employee): ";
+        cin >> r;
+        try {
+            newRole = Account::intToRole(r);
+        } catch (...) {
+            cout << "Invalid role.\n";
+            logger.warn("Invalid role entered for user: " + username);
+            return false;
+        }
+    } else {
+        cout << "Wrong choice.\n";
+        logger.warn("Invalid menu choice for account editing.");
+        return false;
+    }
+
+    bool ok = repo.updateAccount(username, newUsername, newHash, newRole);
+    if (ok)
+        logger.info("Account updated: " + username + " → " + newUsername);
+    else
+        logger.error("Failed to update account: " + username);
+    return ok;
 }
 
 bool AuthManager::accountExists(const string& username) const {
-    for (const auto& a : accounts)
-        if (a.getUsername() == username)
-            return true;
-    return false;
+    return repo.accountExists(username);
 }
 
 vector<string> AuthManager::listUsernames() const {
-    logger.debug("Listing all usernames.");
-    vector<string> res;
-    for (const auto& a : accounts)
-        res.push_back(a.getUsername());
-    logger.info("Listed " + to_string(res.size()) + " usernames.");
-    return res;
+    logger.debug("Listing all usernames from DB.");
+    vector<string> result;
+    for (const auto& acc : repo.getAllAccounts())
+        result.push_back(acc.getUsername());
+    logger.info("Listed " + to_string(result.size()) + " usernames.");
+    return result;
 }

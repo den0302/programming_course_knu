@@ -4,9 +4,25 @@
 #include <utility>
 #include <algorithm>
 #include "../Logger/LoggerGlobal.h"
+#include <sstream>
 using namespace std;
 
 //===========Aviary===========
+Aviary::Aviary(string& name, string& type, double area, int capacity)
+        : name(move(name)), type(move(type)), area(area), capacity(capacity) {}
+Aviary::Aviary(string& id,
+               string& name,
+               string& type,
+               const double area,
+               const int capacity,
+               string& assignedEmployee,
+               const string& animalsStr)
+    : Vertex(id), name(move(name)), type(move(type)), area(area),
+    capacity(capacity), assignedEmployee(move(assignedEmployee))
+{
+    logger.info("Loading Aviary from file with id: " + id);
+    setAnimals(animalsStr);
+}
 void Aviary::printInfoAboutAviary() const {
     logger.debug("Printing info about aviary: " + name);
     cout << "Aviary [" << getId() << "]"
@@ -14,7 +30,7 @@ void Aviary::printInfoAboutAviary() const {
          << ", Type: " << type
          << ", Capacity: " << capacity
          << ", Area: " << area << " m^2"
-         << ", Employee: " << (assignedEmployee ? assignedEmployee->getId() : "no employee");
+         << ", Employee: " << assignedEmployee;
     listAnimals();
     cout << endl;
 }
@@ -37,7 +53,23 @@ shared_ptr<Animal> Aviary::getAnimalById(const string& id) const {
     return nullptr;
 }
 
-shared_ptr<Employee> Aviary::getAssignedEmployee() const { return assignedEmployee; }
+string Aviary::getAssignedEmployee() const { return assignedEmployee; }
+string Aviary::getAnimalsStr() const{
+    if (animals.empty()) {
+        logger.debug("getAnimals: no assigned aviaries");
+        return "";
+    }
+
+    stringstream ss;
+    for (size_t i = 0; i < animals.size(); ++i) {
+        ss << animals[i];
+        if (i + 1 < animals.size())
+            ss << ",";
+    }
+
+    logger.debug("getAnimals: " + ss.str());
+    return ss.str();
+}
 
 void Aviary::setName(const string& n) { name = n; logger.info("Aviary name set to: " + n); }
 void Aviary::setType(const string& t) { type = t; logger.info("Aviary type set to: " + t); }
@@ -47,9 +79,42 @@ void Aviary::setAnimals(vector<shared_ptr<Animal>> an){
     animals = move(an);
     logger.info("Animals list updated in aviary: " + name);
 }
-void Aviary::setAssignedEmployee(const shared_ptr<Employee>& emp) {
-    assignedEmployee = emp;
-    logger.info("Assigned employee " + (emp ? emp->getId() : "none") + " to aviary " + name);
+void Aviary::setAssignedEmployee(const std::string& empId) {
+    assignedEmployee = empId;
+    logger.info("Assigned employee " + (empId.empty() ? "none" : empId) +
+                " to aviary " + name);
+}
+
+void Aviary::setAnimals(const string& Newanimals) {
+    logger.debug("setAssignedAviaries input: [" + Newanimals + "]");
+    animals.clear();
+
+    if (Newanimals.empty()) return;
+
+    stringstream ss(Newanimals);
+    string animalId;
+
+    auto& animalMap = ZooGraph::getInstance().getAnimalManager().getAnimals();
+
+    while (getline(ss, animalId, ',')) {
+        size_t start = animalId.find_first_not_of(" \t");
+        size_t end   = animalId.find_last_not_of(" \t");
+        if (start != string::npos && end != string::npos)
+            animalId = animalId.substr(start, end - start + 1);
+        else
+            animalId.clear();
+
+        if (!animalId.empty()) {
+            auto it = animalMap.find(animalId);
+            if (it != animalMap.end()) {
+                animals.push_back(it->second);
+            } else {
+                logger.warn("Animal with ID [" + animalId + "] not found");
+            }
+        }
+    }
+
+    logger.debug("Parsed " + to_string(animals.size()) + " aviaries");
 }
 
 bool Aviary::addAnimal(const shared_ptr<Animal>& animal) {
@@ -76,7 +141,7 @@ bool Aviary::removeAnimal(const string& animalId) {
 
 void Aviary::removeAssignedEmployee() {
     logger.info("Employee unassigned from aviary " + name);
-    assignedEmployee.reset();
+    assignedEmployee.clear();
 }
 
 void Aviary::listAnimals() const {
@@ -90,27 +155,43 @@ void Aviary::listAnimals() const {
 }
 
 bool Aviary::hasAnimal(const string& animalId) const {
-    for (const auto& a : animals)
-        if (a->getId() == animalId) return true;
-    return false;
+    return ranges::any_of(animals, [&](const auto& a) {
+        return a->getId() == animalId;
+    });
 }
 
 bool Aviary::canAddAnimal(const shared_ptr<Animal>& animal) const {
     if (hasAnimal(animal->getId())) return false;
     if ((int)animals.size() >= capacity) return false;
-    for (const auto& existing : animals)
-        if (!existing->isCompatibleWith(animal) || !animal->isCompatibleWith(existing))
-            return false;
-    return true;
+    return ranges::any_of(animals, [&](const auto& existing) {
+        return existing->isCompatibleWith(animal) && animal->isCompatibleWith(existing);
+    });
 }
 
 //===========Path===========
 double Path::getLength() const { return getWeight(); }
 
 //===========ZooGraph===========
+ZooGraph* ZooGraph::instance = nullptr;
+
+ZooGraph::ZooGraph()
+    : animalManager(*this), employeeManager(*this)
+{
+    instance = this;
+}
+
+ZooGraph& ZooGraph::getInstance() {
+    if (!instance) {
+        throw std::runtime_error("ZooGraph instance not initialized!");
+    }
+    return *instance;
+}
+
 AnimalManager& ZooGraph::getAnimalManager() { return animalManager; }
 EmployeeManager& ZooGraph::getEmployeeManager() { return employeeManager; }
 const unordered_map<string, shared_ptr<Vertex>>& ZooGraph::getAviaries() const { return getVertices(); }
+vector<Edge> ZooGraph::getPaths() const{ return getEdges(); }
+const Edge* ZooGraph::getPath(const string& fromId, const string& toId) const { return getEdge(fromId, toId); ;}
 
 string ZooGraph::getAviaryNameById(const string& id) const {
     auto v = getVertex(id);
@@ -144,7 +225,9 @@ vector<string> ZooGraph::getNeighborsNames(const string& aviaryId) const {
 }
 
 void ZooGraph::addAviary(shared_ptr<Aviary> aviary) {
+    // void ZooGraph::addAviary(const shared_ptr<Aviary>& aviary)
     addVertex(aviary);
+    //addVertex(move(aviary));
     logger.info("Aviary added: " + aviary->getName());
 }
 

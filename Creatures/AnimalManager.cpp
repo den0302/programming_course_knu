@@ -11,7 +11,7 @@
 
 using namespace std;
 
-unordered_map<string, shared_ptr<Animal>> AnimalManager::getAnimals() const {
+const unordered_map<string, shared_ptr<Animal>>& AnimalManager::getAnimals() const {
     logger.debug("Called getAnimals()");
     return animals;
 }
@@ -34,6 +34,22 @@ void AnimalManager::createAnimal(const string& name, const string& species, int 
 
     animals[animal->getId()] = animal;
     logger.info("Animal created successfully: ID=" + animal->getId());
+}
+
+shared_ptr<Animal> AnimalManager::createAnimal(const string& id, string& name, string& species, int age, double weight, string& type, string& aviaryId) {
+    shared_ptr<Animal> animal;
+    if (type == "Mammal") animal = make_shared<Mammal>(id,name, species, age, weight, "Mammal", aviaryId);
+    else if (type == "Bird") animal = make_shared<Bird>(id, name, species, age, weight, "Bird", aviaryId);
+    else if (type == "Reptile") animal = make_shared<Reptile>(id, name, species, age, weight, "Reptile", aviaryId);
+    else if (type == "Fish") animal = make_shared<Fish>(id, name, species, age, weight, "Fish", aviaryId);
+    else if (type == "Amphibian") animal = make_shared<Amphibian>(id, name, species, age, weight, "Amphibian", aviaryId);
+    else if (type == "Insect") animal = make_shared<Insect>(id, name, species, age, weight, "Insect", aviaryId);
+    else if (type == "Arachnid") animal = make_shared<Arachnid>(id, name, species, age, weight, "Arachnid", aviaryId);
+    else {
+        logger.warn("Unknown type: " + type + ". Animal not created.");
+        return nullptr;
+    }
+    return animal;
 }
 
 bool AnimalManager::addAnimalInAviary(const string& aviaryId, const string& animalId) {

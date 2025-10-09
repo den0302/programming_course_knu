@@ -2,8 +2,6 @@
 #define EMPLOYEE_H
 #include <vector>
 #include <string>
-#include <memory>
-#include <unordered_map>
 
 using namespace std;
 
@@ -12,28 +10,35 @@ class ZooGraph;
 class Employee {
 private:
     string id;
+    string name;
     int age;
     int salary;
     int experience;
-    string name;
     vector<string> aviaryIds;
 
 public:
+    Employee(const string& id, const string& name, int age, int salary, int experience, const string& aviaryIds);
     Employee(const string& name, int age, int salary, int experience);
 
-    string getId() const;
-    int getAge() const;
-    int getSalary() const;
-    int getExperience() const;
-    string getName() const;
+    [[nodiscard]] string getId() const;
+    [[nodiscard]] int getAge() const;
+    [[nodiscard]] int getSalary() const;
+    [[nodiscard]] int getExperience() const;
+    [[nodiscard]] string getName() const;
 
-    string getFullInfoAboutEmployee() const;
-    string listAviaries() const ;
+    [[nodiscard]] string getAssignedAviaries() const;
+    void setAssignedAviaries(const string& assignedAviaries);
+    void setAssignedAviaries(vector<string> assignedAviaries);
+    vector<string> assignedAviaries(const string& assignedAviaries);
+
+
+    [[nodiscard]] string getFullInfoAboutEmployee() const;
+    [[nodiscard]] string listAviaries() const ;
     void replaceAviary(const string& fromAviary, const string& toAviary);
     void removeAviary(const string& aviaryId);
-    bool isAssigned() const;
+    [[nodiscard]] bool isAssigned() const;
 
-    const vector<string>& getAviaryIds() const;
+    [[nodiscard]] const vector<string>& getAviaryIds() const;
     void assignAviary(const string& aviary);
 };
 

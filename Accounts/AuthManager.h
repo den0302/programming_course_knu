@@ -1,33 +1,28 @@
 #ifndef AUTHMANAGER_H
 #define AUTHMANAGER_H
+
 #include "Account.h"
-#include <vector>
 #include <optional>
 #include <string>
-#include <utility>
-using namespace std;
+#include <vector>
+class AccountRepository;
 
 class AuthManager {
 private:
-    vector<Account> accounts;
-    string accountsFile = "accounts.txt";
-
-    void loadAccounts();
-    void saveAccounts() const;
+    AccountRepository& repo;
 
 public:
-    AuthManager();
-    ~AuthManager();
+    explicit AuthManager(AccountRepository& repository);
 
-    optional<pair<string, Role>> authenticateInteractive();
+    std::optional<std::pair<std::string, Role>> authenticateInteractive();
 
-    bool addAccount(const string& username, const string& password, Role role);
-    bool removeAccount(const string& username);
+    bool addAccount(const std::string& username, const std::string& password, Role role);
+    bool removeAccount(const std::string& username);
     bool editAccount(const std::string& username);
 
-    bool accountExists(const string& username) const;
+    bool accountExists(const std::string& username) const;
 
-    vector<string> listUsernames() const;
+    std::vector<std::string> listUsernames() const;
 };
 
-#endif //AUTHMANAGER_H
+#endif // AUTHMANAGER_H

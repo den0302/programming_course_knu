@@ -1,6 +1,8 @@
 #ifndef EMPLOYEEMANAGER_H
 #define EMPLOYEEMANAGER_H
 #include "Employee.h"
+#include <unordered_map>
+#include <memory>
 
 class EmployeeManager {
 private:
@@ -9,13 +11,11 @@ private:
 public:
     explicit EmployeeManager(ZooGraph& graph) : zooGraph(graph) {}
 
-    bool addEmployee(const shared_ptr<Employee>& employee);
-
     shared_ptr<Employee> getEmployee(const string& id) const;
     const unordered_map<string, shared_ptr<Employee>>& getAllEmployees() const;
     vector<shared_ptr<Employee>> getUnassignedEmployees() const;
 
-
+    bool addEmployee(const shared_ptr<Employee>& employee);
     bool assignEmployeeToAviary(const string& employeeId, const string& aviaryId);
     bool removeEmployee(const string& id);
     bool reassignEmployee(const string& empId, const string& fromAviaryId, const string& toAviaryId);

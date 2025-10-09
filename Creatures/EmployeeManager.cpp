@@ -64,7 +64,7 @@ bool EmployeeManager::assignEmployeeToAviary(const string& employeeId, const str
         return false;
     }
 
-    aviary->setAssignedEmployee(emp);
+    aviary->setAssignedEmployee(employeeId);
     emp->assignAviary(aviaryId);
 
     logger.info("Employee " + emp->getName() + " (ID: " + emp->getId() + 
@@ -93,7 +93,7 @@ bool EmployeeManager::reassignEmployee(const string& empId, const string& fromAv
     }
 
     fromAviary->removeAssignedEmployee();
-    toAviary->setAssignedEmployee(emp);
+    toAviary->setAssignedEmployee(empId);
     emp->replaceAviary(fromAviaryId, toAviaryId);
 
     logger.info("Employee " + emp->getName() + " successfully reassigned.");
@@ -115,19 +115,19 @@ bool EmployeeManager::removeEmployeeFromAviary(const string& employeeId, const s
         return false;
     }
 
-    auto aviaryPtr = dynamic_pointer_cast<Aviary>(aviaryIt->second);
+    auto aviaryPtr = std::dynamic_pointer_cast<Aviary>(aviaryIt->second);
     if (!aviaryPtr) {
-        logger.error("Failed to cast vertex to Aviary type.");
+        logger.error("Failed to cast vertex to Aviary type (id=" + aviaryId + ").");
         return false;
     }
 
-    auto assigned = aviaryPtr->getAssignedEmployee();
-    if (!assigned) {
+    std::string assignedId = aviaryPtr->getAssignedEmployee();
+    if (assignedId.empty()) {
         logger.warn("No employee currently assigned to aviary " + aviaryPtr->getName() + ".");
         return false;
     }
 
-    if (assigned->getId() != employeeId) {
+    if (assignedId != employeeId) {
         logger.warn("Employee " + employeeId + " is not assigned to aviary " + aviaryId + ".");
         return false;
     }
@@ -135,34 +135,39 @@ bool EmployeeManager::removeEmployeeFromAviary(const string& employeeId, const s
     aviaryPtr->removeAssignedEmployee();
     empIt->second->removeAviary(aviaryId);
 
-    logger.info("Employee " + assigned->getName() + " unassigned from aviary " + aviaryPtr->getName() + ".");
+
+    aviaryPtr->removeAssignedEmployee();
+    empIt->second->removeAviary(aviaryId);
+
+    logger.info("Employee " + assignedId + " unassigned from aviary " + aviaryPtr->getName() + ".");
     return true;
 }
 
 bool EmployeeManager::removeEmployee(const string& id) {
     logger.debug("Removing employee with ID " + id + ".");
 
-    auto it = employees.find(id);
-    if (it == employees.end()) {
+    auto emp = getEmployee(id);
+    if (!emp) {
         logger.warn("No employee with ID " + id + " found.");
         return false;
     }
 
-    auto employeePtr = it->second;
 
-    for (auto& [aviaryId, vertexPtr] : zooGraph.getAviaries()) {
-        auto aviaryPtr = dynamic_pointer_cast<Aviary>(vertexPtr);
-        if (!aviaryPtr) continue;
-        auto assigned = aviaryPtr->getAssignedEmployee();
-        if (assigned && assigned == employeePtr) {
-            aviaryPtr->removeAssignedEmployee();
-            logger.info("Employee " + employeePtr->getName() + " was removed from aviary " + aviaryPtr->getName() + ".");
-            break;
+    for (auto& [aviaryId, aviaryPtr] : zooGraph.getAviaries()) {
+        auto realAviaryPtr = std::dynamic_pointer_cast<Aviary>(aviaryPtr);
+        if (!realAviaryPtr) {
+            logger.warn("Vertex " + aviaryId + " is not an aviary.");
+            continue;
+        }
+
+        if (realAviaryPtr->getAssignedEmployee() == id) {
+            realAviaryPtr->removeAssignedEmployee();
+            logger.info("Employee " + emp->getName() + " was removed from aviary " + realAviaryPtr->getName() + ".");
         }
     }
 
-    employees.erase(it);
-    logger.info("Employee " + employeePtr->getName() + " removed from system.");
+    employees.erase(id);
+    logger.info("Employee " + emp->getName() + " removed from system.");
     return true;
 }
 

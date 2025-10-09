@@ -105,3 +105,72 @@
 [2025-07-10 01:01:06] [INFO] Ennabled loger levels: WARN
 [2025-07-10 01:01:06] [INFO] Ennabled loger levels: ERROR
 [2025-07-10 01:01:09] [INFO] Ennabled loger levels: DEBUG
+[2025-07-10 04:07:54] [INFO] Loaded 3 accounts from file.
+[2025-07-10 04:07:54] [INFO] Accounts loaded successfully (3 found).
+[2025-07-10 04:08:05] [WARN] Login FAILED for user: agmin
+[2025-07-10 04:08:27] [INFO] Login SUCCESS: admin (Admin)
+[2025-07-10 04:08:27] [INFO] [admin] Opened AdminMenu
+[2025-07-10 04:08:51] [INFO] Active loger levels: INFO WARN ERROR
+[2025-07-10 04:13:17] [INFO] Loaded 3 accounts from file.
+[2025-07-10 04:13:17] [INFO] Accounts loaded successfully (3 found).
+[2025-07-10 04:13:23] [INFO] Login SUCCESS: admin (Admin)
+[2025-07-10 04:13:23] [INFO] [admin] Opened AdminMenu
+[2025-07-10 04:13:33] [WARN] Graph is empty, considered connected by default
+[2025-07-10 04:13:33] [INFO] Zoo connectivity check: Connected
+[2025-07-10 04:13:55] [INFO] Active loger levels: INFO WARN ERROR
+[2025-07-10 04:14:04] [WARN] [admin] Entered invalid log settings option.
+[2025-07-10 04:14:29] [INFO] [admin] Logged out and returned to login screen.
+[2025-07-10 04:14:34] [INFO] Accounts successfully saved (3 records).
+[2025-07-10 11:16:49] [INFO] Loaded 3 accounts from file.
+[2025-07-10 11:16:49] [INFO] Accounts loaded successfully (3 found).
+[2025-07-10 11:16:55] [INFO] Login SUCCESS: admin (Admin)
+[2025-07-10 11:16:55] [INFO] [admin] Opened AdminMenu
+[2025-07-10 11:49:15] [INFO] Loaded 3 accounts from file.
+[2025-07-10 11:49:15] [INFO] Accounts loaded successfully (3 found).
+[2025-07-10 11:49:22] [INFO] Login SUCCESS: admin (Admin)
+[2025-07-10 11:49:22] [INFO] [admin] Opened AdminMenu
+[2025-07-10 11:50:00] [INFO] Creating animal: leto (Lion), type: mammal
+[2025-07-10 11:50:00] [WARN] Unknown type: mammal. Animal not created.
+[2025-07-10 11:50:00] [INFO] [admin] Created animal: leto (Lion)
+[2025-07-10 11:50:21] [INFO] Listed 0 animals.
+[2025-07-10 11:56:55] [INFO] Loaded 3 accounts from file.
+[2025-07-10 11:56:55] [INFO] Accounts loaded successfully (3 found).
+[2025-07-10 11:57:06] [INFO] Login SUCCESS: admin (Admin)
+[2025-07-10 11:57:06] [INFO] [admin] Opened AdminMenu
+[2025-07-10 11:57:39] [ERROR] Wrong type animal
+[2025-07-10 11:58:16] [INFO] Loaded 3 accounts from file.
+[2025-07-10 11:58:16] [INFO] Accounts loaded successfully (3 found).
+[2025-07-10 11:58:21] [INFO] Login SUCCESS: admin (Admin)
+[2025-07-10 11:58:21] [INFO] [admin] Opened AdminMenu
+[2025-07-10 11:58:37] [ERROR] Wrong type animal
+[2025-07-10 11:59:01] [INFO] Loaded 3 accounts from file.
+[2025-07-10 11:59:01] [INFO] Accounts loaded successfully (3 found).
+[2025-07-10 11:59:09] [INFO] Login SUCCESS: admin (Admin)
+[2025-07-10 11:59:09] [INFO] [admin] Opened AdminMenu
+[2025-07-10 11:59:27] [ERROR] Wrong type animal
+[2025-07-10 12:02:43] [INFO] Loaded 3 accounts from file.
+[2025-07-10 12:02:43] [INFO] Accounts loaded successfully (3 found).
+[2025-07-10 12:02:46] [INFO] Login SUCCESS: admin (Admin)
+[2025-07-10 12:02:46] [INFO] [admin] Opened AdminMenu
+[2025-07-10 12:03:10] [INFO] Creating animal: Walter (Lion), type: Mammal
+[2025-07-10 12:03:10] [INFO] Created Animal: Walter (Lion), ID: 89a14cdb-37a2-493b-b9b0-ff93eb4fdef1
+[2025-07-10 12:03:10] [INFO] Created Mammal: Walter (Lion)
+[2025-07-10 12:03:10] [INFO] Animal created successfully: ID=89a14cdb-37a2-493b-b9b0-ff93eb4fdef1
+[2025-07-10 12:03:10] [INFO] [admin] Created animal: Walter (Lion)
+[2025-08-10 06:09:31] [INFO] Table 'accounts' ensured.
+[2025-08-10 06:09:31] [ERROR] SQL prepare failed: out of memory
+[2025-08-10 06:09:31] [ERROR] Failed to prepare SELECT for all accounts.
+[2025-08-10 06:09:31] [WARN] No accounts found in DB. Creating default accounts...
+[2025-08-10 06:09:31] [ERROR] SQL prepare failed: out of memory
+[2025-08-10 06:09:31] [ERROR] Failed to insert account: admin
+[2025-08-10 06:09:31] [ERROR] Failed to add account: admin
+[2025-08-10 06:09:31] [ERROR] SQL prepare failed: out of memory
+[2025-08-10 06:09:31] [ERROR] Failed to insert account: manager
+[2025-08-10 06:09:31] [ERROR] Failed to add account: manager
+[2025-08-10 06:09:31] [ERROR] SQL prepare failed: out of memory
+[2025-08-10 06:09:31] [ERROR] Failed to insert account: employee
+[2025-08-10 06:09:31] [ERROR] Failed to add account: employee
+[2025-08-10 06:09:31] [INFO] Default accounts created in database.
+[2025-08-10 06:10:03] [ERROR] SQL prepare failed: out of memory
+[2025-08-10 06:10:03] [ERROR] Failed to prepare SELECT for account: admin
+[2025-08-10 06:10:03] [WARN] Login FAILED for user: admin

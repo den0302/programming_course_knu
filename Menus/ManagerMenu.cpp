@@ -293,7 +293,7 @@ void ManagerMenu::show(const string& username, AuthManager& auth, ZooGraph& zoo)
                     logger.info(oss.str());
                 }
                 logger.listEnabledLevels();
-                cout << "1. Enable Role\n2. Disable Role\nChoice: ";
+                cout << "1. Enable Level\n2. Disable Level\nAny button to move back \nChoice: ";
                 int ch2; cin >> ch2;
                 switch (ch2) {
                     case 1: {

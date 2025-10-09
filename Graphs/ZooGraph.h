@@ -3,7 +3,6 @@
 #include <memory>
 #include <string>
 #include "Graph.h"
-
 #include "../Creatures/EmployeeManager.h"
 #include "../Creatures/AnimalManager.h"
 class Aviary : public Vertex {
@@ -13,31 +12,43 @@ private:
     double area;
     int capacity;
     vector<shared_ptr<Animal>> animals;
-    shared_ptr<Employee> assignedEmployee;
+    string assignedEmployee;
 public:
-    Aviary(const string& name, const string& type, double area, int capacity)
-        : name(name), type(type), area(area), capacity(capacity) {}
+    Aviary(string& name,
+           string& type,
+           double area,
+           int capacity);
 
-    string getIdAviary() const;
-    string getName() const;
-    string getType() const;
-    double getArea() const;
-    int getCapacity() const;
-    const vector<shared_ptr<Animal>>& getAnimals() const;
-    shared_ptr<Animal> getAnimalById(const string& id) const;
-    shared_ptr<Employee> getAssignedEmployee() const;
+    Aviary(string& id,
+                   string& name,
+                   string& type,
+                   double area,
+                   int capacity,
+                   string& assignedEmployee,
+                   const string& animalsStr);
+
+    [[nodiscard]] string getIdAviary() const;
+    [[nodiscard]] string getName() const;
+    [[nodiscard]] string getType() const;
+    [[nodiscard]] double getArea() const;
+    [[nodiscard]] int getCapacity() const;
+    [[nodiscard]] const vector<shared_ptr<Animal>>& getAnimals() const;
+    [[nodiscard]] shared_ptr<Animal> getAnimalById(const string& id) const;
+    [[nodiscard]] string getAssignedEmployee() const;
+    [[nodiscard]] string getAnimalsStr() const;
 
     void setName(const string& n);
     void setType(const string& t);
     void setArea(double a);
     void setCapacity(int c);
     void setAnimals(vector<shared_ptr<Animal>> an);
-    void setAssignedEmployee(const shared_ptr<Employee>& emp);
+    void setAssignedEmployee(const string& employeeId);
+    void setAnimals(const string& animals);
 
     void printInfoAboutAviary() const;
 
-    bool hasAnimal(const string& animalId) const;
-    bool canAddAnimal(const shared_ptr<Animal>& animal) const;
+    [[nodiscard]] bool hasAnimal(const string& animalId) const;
+    [[nodiscard]] bool canAddAnimal(const shared_ptr<Animal>& animal) const;
 
     bool addAnimal(const shared_ptr<Animal>& animal) ;
     bool removeAnimal(const string& id);
@@ -51,18 +62,26 @@ public:
     Path(const string& from, const string& to, double length)
         : Edge(from, to, length) {}
 
-    double getLength() const;
+    [[nodiscard]] double getLength() const;
 };
 
 class ZooGraph : public Graph {
 private:
+    static ZooGraph* instance;
+
     AnimalManager animalManager;
     EmployeeManager employeeManager;
 public:
-    ZooGraph(): animalManager(*this), employeeManager(*this) {}
+    ZooGraph();
+
+    static ZooGraph& getInstance();
+
     AnimalManager& getAnimalManager();
     EmployeeManager& getEmployeeManager();
+
     const unordered_map<string, shared_ptr<Vertex>>& getAviaries() const;
+    vector<Edge> getPaths() const;
+    const Edge* getPath(const string& fromId, const string& toId) const;
     shared_ptr<Vertex> getAviaryById(const string& id) const;
     string getAviaryNameById(const string& id) const;
     vector<string> getNeighborsNames(const string& aviaryId) const;

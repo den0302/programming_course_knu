@@ -8,11 +8,9 @@
 #include <rpcdce.h>
 #include <iomanip>
 
-using namespace std;
-
 //===========Animal===========
 Animal::Animal(const string& name, const string& species, int age, double weight, const string& type)
-    : name(name), species(species), age(age), weight(weight), type(type), aviaryId("") {
+    : name(name), species(species), age(age), weight(weight), type(type) {
 
     UUID uuid;
     RPC_STATUS status = UuidCreate(&uuid);
@@ -34,6 +32,12 @@ Animal::Animal(const string& name, const string& species, int age, double weight
     logger.info("Created Animal: " + name + " (" + species + "), ID: " + id);
 }
 
+Animal::Animal(const string& id, string& name, string& species, int age, double weight, const string& type, string& aviaryId)
+    : id(id), name(std::move(name)), species(std::move(species)), age(age), weight(weight), type(type), aviaryId(std::move(aviaryId)) {
+    logger.info("Loading Animal from file with id: " + id);
+}
+
+
 string Animal::getId() const {
     logger.debug("getId() called for Animal: " + name);
     return id;
@@ -48,6 +52,8 @@ string Animal::getSpecies() const {
     logger.debug("getSpecies() called for Animal: " + name);
     return species;
 }
+
+string Animal::getType() const { return type; }
 
 int Animal::getAge() const {
     logger.debug("getAge() called for Animal: " + name);
@@ -168,6 +174,9 @@ Mammal::Mammal(const string& name, const string& species, int age, double weight
     logger.info("Created Mammal: " + name + " (" + species + ")");
 }
 
+Mammal::Mammal(const string& id, string& name, string& species, int age, double weight, const string& type, string& aviaryId)
+    : Animal (id, name, species, age, weight, type, aviaryId) {}
+
 void Mammal::makeSound() const {
     cout << name << " (" << species << ") said: Rrrr!\n";
     logger.debug("Mammal " + name + " made a sound");
@@ -178,6 +187,9 @@ Bird::Bird(const string& name, const string& species, int age, double weight, co
     : Animal(name, species, age, weight, type) {
     logger.info("Created Bird: " + name + " (" + species + ")");
 }
+
+Bird::Bird(const string& id, string& name, string& species, int age, double weight, const string& type, string& aviaryId)
+    : Animal (id, name, species, age, weight, type, aviaryId) {}
 
 void Bird::makeSound() const {
     cout << name << " (" << species << ") said: Tweet!\n";
@@ -195,6 +207,9 @@ Reptile::Reptile(const string& name, const string& species, int age, double weig
     logger.info("Created Reptile: " + name + " (" + species + ")");
 }
 
+Reptile::Reptile(const string& id, string& name, string& species, int age, double weight, const string& type, string& aviaryId)
+    : Animal (id, name, species, age, weight, type, aviaryId) {}
+
 void Reptile::makeSound() const {
     cout << name << " (" << species << ") hisses: Ssssss!\n";
     logger.debug("Reptile " + name + " hissed");
@@ -205,6 +220,9 @@ Fish::Fish(const string& name, const string& species, int age, double weight, co
         : Animal(name, species, age, weight, type) {
     logger.info("Created Fish: " + name + " (" + species + ")");
 }
+
+Fish::Fish(const string& id, string& name, string& species, int age, double weight, const string& type, string& aviaryId)
+    : Animal (id, name, species, age, weight, type, aviaryId) {}
 
 void Fish::makeSound() const  {
     cout << name << " (" << species << ") makes bubbling sounds!\n";
@@ -222,6 +240,9 @@ Amphibian::Amphibian(const string& name, const string& species, int age, double 
     logger.info("Created Amphibian: " + name + " (" + species + ")");
 }
 
+Amphibian::Amphibian(const string& id, string& name, string& species, int age, double weight, const string& type, string& aviaryId)
+    : Animal (id, name, species, age, weight, type, aviaryId) {}
+
 void Amphibian::makeSound() const  {
     cout << name << " (" << species << ") croaks!\n";
     logger.debug("Amphibian " + name + " croaked");
@@ -238,6 +259,9 @@ Insect::Insect(const string& name, const string& species, int age, double weight
     logger.info("Created Insect: " + name + " (" + species + ")");
 }
 
+Insect::Insect(const string& id, string& name, string& species, int age, double weight, const string& type, string& aviaryId)
+    : Animal (id, name, species, age, weight, type, aviaryId) {}
+
 void Insect::makeSound() const  {
     cout << name << " (" << species << ") buzzes!\n";
     logger.debug("Insect " + name + " buzzed");
@@ -253,6 +277,9 @@ Arachnid::Arachnid(const string& name, const string& species, int age, double we
         : Animal(name, species, age, weight, type) {
     logger.info("Created Arachnid: " + name + " (" + species + ")");
 }
+
+Arachnid::Arachnid(const string& id, string& name, string& species, int age, double weight, const string& type, string& aviaryId)
+    : Animal (id, name, species, age, weight, type, aviaryId) {}
 
 void Arachnid::makeSound() const  {
     cout << name << " (" << species << ") is silent.\n";

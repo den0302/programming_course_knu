@@ -14,9 +14,11 @@ private:
 public:
     explicit AnimalManager(ZooGraph& graph) : zooGraph(graph) {}
 
-    unordered_map<string, shared_ptr<Animal>> getAnimals() const;
+    const unordered_map<string, shared_ptr<Animal>>& getAnimals() const;
 
     void createAnimal(const string& name, const string& species, int age, double weight, const string& type);
+    shared_ptr<Animal> createAnimal(const string& id, string& name, string& species, int age, double weight, string& type, string& aviaryId);
+
     bool addAnimalInAviary(const string& aviaryId, const string& animalId);
     bool removeAnimalFromAviary(const string& aviaryId, const string& animalId);
     bool removeAnimalFromAnimals(const string& animalId);
