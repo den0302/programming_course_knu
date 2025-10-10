@@ -37,11 +37,9 @@ void AuthManagerTests::test_add_remove_list_accounts() {
     AccountRepository repo(db);
     repo.initTable();
     AuthManager auth(repo);
-    // Default accounts should exist
     assert(auth.accountExists("admin"));
     assert(auth.accountExists("manager"));
     assert(auth.accountExists("employee"));
-    // Add new account
     bool added = auth.addAccount("user1", "pass", Role::EMPLOYEE);
     assert(added);
     assert(auth.accountExists("user1"));
@@ -51,13 +49,10 @@ void AuthManagerTests::test_add_remove_list_accounts() {
         if (n == "user1") { found = true; break; }
     }
     assert(found && "New user should be in listUsernames");
-    // Remove account
     bool removed = auth.removeAccount("user1");
     assert(removed);
     assert(!auth.accountExists("user1"));
-    // Remove again should fail
     assert(auth.removeAccount("user1") == false);
-    // Adding existing (admin) should fail
     assert(auth.addAccount("admin", "xx", Role::ADMIN) == false);
     assert(auth.accountExists("admin"));
 }
