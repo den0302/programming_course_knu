@@ -32,6 +32,7 @@ public:
 };
 
 class Graph {
+    friend class GraphTests;
 private:
     unordered_map<string, shared_ptr<Vertex>> vertices;
     vector<Edge> edges;

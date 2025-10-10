@@ -1,11 +1,9 @@
-#include <string>
-#include <iostream>
 #include "Logger/LoggerGlobal.h"
 #include "Graphs/ZooGraph.h"
 #include "Menus/Menu.h"
-#include "DatabaseManager/AccountRepository.h"
-#include "DatabaseManager/AnimalRepository.h"
-#include "DatabaseManager/EmployeeRepository.h"
+#include "UnitTests/UnitTests.h"
+#include <string>
+#include <iostream>
 #ifdef _WIN32
 #include <windows.h>
 void enableANSI() {
@@ -20,10 +18,16 @@ void enableANSI() {
 using namespace std;
 
 int main() {
-
     #ifdef _WIN32
         enableANSI();
     #endif
+
+    AccountTests::run();
+    AuthManagerTests::run();
+    AnimalTests::run();
+    GraphTests::run();
+    LoggerTests::run();
+    logger.info("All tests passed!");
 
     DatabaseManager db("zoo.db");
     AccountRepository accRepo(db);
