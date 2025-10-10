@@ -5,6 +5,10 @@
 #include "Graph.h"
 #include "../Creatures/EmployeeManager.h"
 #include "../Creatures/AnimalManager.h"
+#include "../DatabaseManager/AviaryRepository.h"
+#include "../DatabaseManager/PathRepository.h"
+#include "../DatabaseManager/AnimalRepository.h"
+#include "../DatabaseManager/EmployeeRepository.h"
 class Aviary : public Vertex {
 private:
     string name;
@@ -13,6 +17,7 @@ private:
     int capacity;
     vector<shared_ptr<Animal>> animals;
     string assignedEmployee;
+    string animalsStrTemp;
 public:
     Aviary(string& name,
            string& type,
@@ -27,6 +32,9 @@ public:
                    string& assignedEmployee,
                    const string& animalsStr);
 
+    [[nodiscard]] const string& getAnimalsStrTemp() const;
+    void clearAnimalsStrTemp();
+    vector<shared_ptr<Animal>>& getAnimalsRef();
     [[nodiscard]] string getIdAviary() const;
     [[nodiscard]] string getName() const;
     [[nodiscard]] string getType() const;
@@ -61,20 +69,25 @@ class Path : public Edge {
 public:
     Path(const string& from, const string& to, double length)
         : Edge(from, to, length) {}
-
+    [[nodiscard]] string getFromId() const;
+    [[nodiscard]] string getToId() const;
     [[nodiscard]] double getLength() const;
 };
 
 class ZooGraph : public Graph {
 private:
-    static ZooGraph* instance;
+    AviaryRepository& repoAv;
+    PathRepository& repoPth;
+    AnimalRepository& animalRepo;
+    EmployeeRepository& employeeRepo;
 
     AnimalManager animalManager;
     EmployeeManager employeeManager;
 public:
-    ZooGraph();
+    ZooGraph(AviaryRepository& aviaryRrepository, PathRepository& pathRepository, AnimalRepository& animalRepository, EmployeeRepository& employeeRepository);
 
-    static ZooGraph& getInstance();
+    void loadAviariesFromRepo(AviaryRepository& repo);
+    void loadPathsFromRepo(PathRepository& repo);
 
     AnimalManager& getAnimalManager();
     EmployeeManager& getEmployeeManager();

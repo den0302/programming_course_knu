@@ -190,6 +190,7 @@ void Menu::showFor(const string& username, Role role, AuthManager& auth, ZooGrap
                         ostringstream oss;
                         oss << "[" << username << "] Invalid menu choice (" << ch << ")";
                         logger.warn(oss.str());
+                        break;
                     }
                 }
             }

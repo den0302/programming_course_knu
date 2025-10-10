@@ -4,6 +4,8 @@
 #include "Graphs/ZooGraph.h"
 #include "Menus/Menu.h"
 #include "DatabaseManager/AccountRepository.h"
+#include "DatabaseManager/AnimalRepository.h"
+#include "DatabaseManager/EmployeeRepository.h"
 #ifdef _WIN32
 #include <windows.h>
 void enableANSI() {
@@ -26,7 +28,11 @@ int main() {
     DatabaseManager db("zoo.db");
     AccountRepository accRepo(db);
     AuthManager auth(accRepo);
-    ZooGraph zoo;
+    AviaryRepository aviaryRepo(db);
+    PathRepository pathRepo(db);
+    AnimalRepository animalRepo(db);
+    EmployeeRepository employeeRepo(db);
+    ZooGraph zoo(aviaryRepo, pathRepo, animalRepo, employeeRepo);
 
     while (true) {
         auto session = auth.authenticateInteractive();

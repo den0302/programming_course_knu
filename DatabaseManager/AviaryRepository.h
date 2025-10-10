@@ -2,10 +2,12 @@
 #define AVIARYREPOSITORY_H
 
 #include "DatabaseManager.h"
-#include "../Graphs/ZooGraph.h"
 #include <unordered_map>
 #include <memory>
 #include <iostream>
+class Aviary;
+
+using namespace std;
 
 class AviaryRepository {
 private:
@@ -17,11 +19,11 @@ public:
     void initTable();
 
     void addAviary(const Aviary& a);
-    void removeAviary(const std::string& id);
+    void removeAviary(const string& id);
 
-    void updateAviaryEmployee(const std::string& aviaryId, const std::string& employeeId);
+    void updateAviaryEmployee(const string& aviaryId, const string& employeeId);
 
-    std::unordered_map<std::string, std::shared_ptr<Aviary>> getAllAviaries();
+    unordered_map<string, shared_ptr<Aviary>> getAllAviaries();
 
     void clearAll();
 };

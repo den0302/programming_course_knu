@@ -12,7 +12,7 @@ private:
     string id;
 public:
     Vertex();
-    explicit Vertex(string& id);
+    explicit Vertex(const string& id);
     virtual ~Vertex();
     string getId() const;
 };

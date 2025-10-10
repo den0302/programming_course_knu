@@ -335,6 +335,7 @@ void ManagerMenu::show(const string& username, AuthManager& auth, ZooGraph& zoo)
                     oss << "[" << username << "] Invalid choice";
                     logger.warn(oss.str());
                 }
+            break;
         }
     }
 }

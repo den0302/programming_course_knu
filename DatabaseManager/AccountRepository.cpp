@@ -1,24 +1,37 @@
 #include "AccountRepository.h"
 #include "../Logger/LoggerGlobal.h"
+#include "SQLUtilities/SQLUtils.h"
 #include <sstream>
+using namespace std;
 
 AccountRepository::AccountRepository(DatabaseManager& database) : db(database) {}
 
 void AccountRepository::initTable() {
-    std::string sql =
+    string sql =
         "CREATE TABLE IF NOT EXISTS accounts ("
         "username TEXT PRIMARY KEY, "
         "passwordHash TEXT NOT NULL, "
         "role INTEGER NOT NULL"
         ");";
-    db.execute(sql);
+    if (!db.getDB()) {
+        logger.error("Database pointer is null before initTable!");
+        return;
+    }
+    const char* dbFile = sqlite3_db_filename(db.getDB(), "main");
+    logger.debug(string("AccountRepository::initTable - DB file: ") + (dbFile ? dbFile : "unknown"));
+
+    if (!db.execute(sql)) {
+        logger.error("Failed to create table 'accounts'. See previous SQL error.");
+        return;
+    }
     logger.info("Table 'accounts' ensured.");
 }
 
-bool AccountRepository::addAccount(const std::string& username, size_t passwordHash, Role role) {
-    std::string sql =
-        "INSERT INTO accounts (username, passwordHash, role) VALUES ('" + username + "', '" +
-        std::to_string(passwordHash) + "', '" + std::to_string(Account::roleToInt(role)) + "');";
+bool AccountRepository::addAccount(const string& username, size_t passwordHash, Role role) {
+    string safeUsername = escapeSQL(username);
+    string sql =
+        "INSERT INTO accounts (username, passwordHash, role) VALUES ('" + safeUsername + "', '" +
+        to_string(passwordHash) + "', '" + to_string(Account::roleToInt(role)) + "');";
 
     bool ok = db.execute(sql);
     if (ok) logger.info("Account added: " + username);
@@ -26,26 +39,26 @@ bool AccountRepository::addAccount(const std::string& username, size_t passwordH
     return ok;
 }
 
-bool AccountRepository::removeAccount(const std::string& username) {
-    std::string sql = "DELETE FROM accounts WHERE username='" + username + "';";
+bool AccountRepository::removeAccount(const string& username) {
+    string sql = "DELETE FROM accounts WHERE username='" + username + "';";
     bool ok = db.execute(sql);
     if (ok) logger.info("Account removed: " + username);
     else logger.warn("Failed to remove account: " + username);
     return ok;
 }
 
-bool AccountRepository::updateAccount(const std::string& username,
-                                      const std::string& newUsername,
-                                      std::optional<size_t> newPasswordHash,
-                                      std::optional<Role> newRole) {
-    std::ostringstream oss;
+bool AccountRepository::updateAccount(const string& username,
+                                      const string& newUsername,
+                                      optional<size_t> newPasswordHash,
+                                      optional<Role> newRole) {
+    ostringstream oss;
     oss << "UPDATE accounts SET username='" << newUsername << "'";
 
     if (newPasswordHash.has_value())
-        oss << ", passwordHash='" << std::to_string(*newPasswordHash) << "'";
+        oss << ", passwordHash='" << to_string(*newPasswordHash) << "'";
 
     if (newRole.has_value())
-        oss << ", role='" << std::to_string(Account::roleToInt(*newRole)) << "'";
+        oss << ", role='" << to_string(Account::roleToInt(*newRole)) << "'";
 
     oss << " WHERE username='" << username << "';";
 
@@ -55,17 +68,17 @@ bool AccountRepository::updateAccount(const std::string& username,
     return ok;
 }
 
-std::optional<Account> AccountRepository::getAccount(const std::string& username) {
-    std::string sql = "SELECT username, passwordHash, role FROM accounts WHERE username='" + username + "';";
+optional<Account> AccountRepository::getAccount(const string& username) {
+    string sql = "SELECT username, passwordHash, role FROM accounts WHERE username='" + username + "';";
     sqlite3_stmt* stmt;
     if (!db.prepare(sql, &stmt)) {
         logger.error("Failed to prepare SELECT for account: " + username);
-        return std::nullopt;
+        return nullopt;
     }
 
-    std::optional<Account> result;
+    optional<Account> result;
     if (sqlite3_step(stmt) == SQLITE_ROW) {
-        std::string u = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
+        string u = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
         size_t hash = static_cast<size_t>(sqlite3_column_int64(stmt, 1));
         Role role = Account::intToRole(sqlite3_column_int(stmt, 2));
         result = Account(u, hash, role);
@@ -74,9 +87,9 @@ std::optional<Account> AccountRepository::getAccount(const std::string& username
     return result;
 }
 
-std::vector<Account> AccountRepository::getAllAccounts() {
-    std::vector<Account> res;
-    std::string sql = "SELECT username, passwordHash, role FROM accounts;";
+vector<Account> AccountRepository::getAllAccounts() {
+    vector<Account> res;
+    string sql = "SELECT username, passwordHash, role FROM accounts;";
     sqlite3_stmt* stmt;
 
     if (!db.prepare(sql, &stmt)) {
@@ -85,7 +98,7 @@ std::vector<Account> AccountRepository::getAllAccounts() {
     }
 
     while (sqlite3_step(stmt) == SQLITE_ROW) {
-        std::string u = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
+        string u = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
         size_t hash = static_cast<size_t>(sqlite3_column_int64(stmt, 1));
         Role role = Account::intToRole(sqlite3_column_int(stmt, 2));
         res.emplace_back(u, hash, role);
@@ -95,8 +108,8 @@ std::vector<Account> AccountRepository::getAllAccounts() {
     return res;
 }
 
-bool AccountRepository::accountExists(const std::string& username) {
-    std::string sql = "SELECT COUNT(*) FROM accounts WHERE username='" + username + "';";
+bool AccountRepository::accountExists(const string& username) {
+    string sql = "SELECT COUNT(*) FROM accounts WHERE username='" + username + "';";
     sqlite3_stmt* stmt;
     if (!db.prepare(sql, &stmt)) return false;
 

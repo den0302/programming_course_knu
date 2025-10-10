@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <limits>
 #include "AdminMenu.h"
 #include "../Logger/LoggerGlobal.h"
 using namespace std;
@@ -87,8 +88,11 @@ void AdminMenu::show(const string& username, AuthManager& auth, ZooGraph& zoo) {
                 int age;
                 double weight;
                 string name, species, type;
-                cout << "Name: "; cin >> name;
-                cout << "Species: "; cin >> species;
+                cout << "Name: ";
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                getline(cin, name);
+                cout << "Species: ";
+                getline(cin, species);
                 cout << "Age: "; cin >> age;
                 cout << "Weight: "; cin >> weight;
                 cout << "Type(Mammal Reptile Bird Fish Amphibian Arachnid Insect): "; cin >> type;
@@ -121,7 +125,9 @@ void AdminMenu::show(const string& username, AuthManager& auth, ZooGraph& zoo) {
             case 6: {
                 string name;
                 int salary, age, experience;
-                cout << "Name: "; cin >> name;
+                cout << "Name: ";
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                getline(cin, name);
                 cout << "Salary: "; cin >> salary;
                 cout << "Age: "; cin >> age;
                 cout << "Experience: "; cin >> experience;
@@ -146,8 +152,11 @@ void AdminMenu::show(const string& username, AuthManager& auth, ZooGraph& zoo) {
                 string name, type;
                 double area;
                 int capacity;
-                cout << "Name: "; cin >> name;
-                cout << "Type: "; cin >> type;
+                cout << "Name: ";
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                getline(cin, name);
+                cout << "Type: ";
+                getline(cin, type);
                 cout << "Area: "; cin >> area;
                 cout << "Capacity: "; cin >> capacity;
                 zoo.addAviary(make_shared<Aviary>(name, type, area, capacity));
@@ -291,6 +300,7 @@ void AdminMenu::show(const string& username, AuthManager& auth, ZooGraph& zoo) {
                 ostringstream oss;
                 oss << "[" << username << "] Entered invalid menu option: " << ch;
                 logger.warn(oss.str());
+                break;
             }
         }
     }

@@ -11,6 +11,67 @@
 
 using namespace std;
 
+AnimalManager::AnimalManager(ZooGraph& graph, AnimalRepository& animalRepo) : zooGraph(graph), animalRepo(animalRepo) {
+    animalRepo.initTable();
+    animals = animalRepo.getAllAnimals();
+    linkAnimalsToAviaries();
+}
+
+/*Функція яка напряму додає тварин в вольєри
+void AnimalManager::loadAnimalsFromRepo(AnimalRepository& animalRepo) {
+    animals = animalRepo.getAllAnimals();
+
+    auto& aviaries = zooGraph.getAviaries();
+
+    for (const auto& [id, vertex] : aviaries) {
+        auto aviary = dynamic_pointer_cast<Aviary>(vertex);
+        if (!aviary) continue;
+
+        vector<shared_ptr<Animal>> aviaryAnimals;
+
+        for (const auto& [animalId, animalPtr] : animals) {
+            if (animalPtr->getAviaryId() == id) {
+                aviaryAnimals.push_back(animalPtr);
+            }
+        }
+
+        aviary->getAnimalsRef() = move(aviaryAnimals);
+    }
+
+    cout << "Animals successfully loaded and assigned to their aviaries.\n";
+}*/
+
+void AnimalManager::linkAnimalsToAviaries() {
+    auto& aviaries = zooGraph.getAviaries();
+
+    for (const auto& [id, vertex] : aviaries) {
+        auto aviary = dynamic_pointer_cast<Aviary>(vertex);
+        if (!aviary) continue;
+
+        const string& str = aviary->getAnimalsStrTemp();
+        if (str.empty()) continue;
+
+        stringstream ss(str);
+        string animalId;
+
+        while (getline(ss, animalId, ',')) {
+            size_t start = animalId.find_first_not_of(" \t");
+            size_t end = animalId.find_last_not_of(" \t");
+            if (start == string::npos || end == string::npos) continue;
+            animalId = animalId.substr(start, end - start + 1);
+
+            auto it = animals.find(animalId);
+            if (it != animals.end()) {
+                aviary->getAnimalsRef().push_back(it->second);
+                logger.debug("Linked animal " + animalId + " to aviary " + id);
+            }
+        }
+
+        aviary->clearAnimalsStrTemp(); // більше не потрібно
+    }
+}
+
+
 const unordered_map<string, shared_ptr<Animal>>& AnimalManager::getAnimals() const {
     logger.debug("Called getAnimals()");
     return animals;
@@ -33,23 +94,8 @@ void AnimalManager::createAnimal(const string& name, const string& species, int 
     }
 
     animals[animal->getId()] = animal;
+    animalRepo.addAnimal(*animal);
     logger.info("Animal created successfully: ID=" + animal->getId());
-}
-
-shared_ptr<Animal> AnimalManager::createAnimal(const string& id, string& name, string& species, int age, double weight, string& type, string& aviaryId) {
-    shared_ptr<Animal> animal;
-    if (type == "Mammal") animal = make_shared<Mammal>(id,name, species, age, weight, "Mammal", aviaryId);
-    else if (type == "Bird") animal = make_shared<Bird>(id, name, species, age, weight, "Bird", aviaryId);
-    else if (type == "Reptile") animal = make_shared<Reptile>(id, name, species, age, weight, "Reptile", aviaryId);
-    else if (type == "Fish") animal = make_shared<Fish>(id, name, species, age, weight, "Fish", aviaryId);
-    else if (type == "Amphibian") animal = make_shared<Amphibian>(id, name, species, age, weight, "Amphibian", aviaryId);
-    else if (type == "Insect") animal = make_shared<Insect>(id, name, species, age, weight, "Insect", aviaryId);
-    else if (type == "Arachnid") animal = make_shared<Arachnid>(id, name, species, age, weight, "Arachnid", aviaryId);
-    else {
-        logger.warn("Unknown type: " + type + ". Animal not created.");
-        return nullptr;
-    }
-    return animal;
 }
 
 bool AnimalManager::addAnimalInAviary(const string& aviaryId, const string& animalId) {
@@ -70,6 +116,7 @@ bool AnimalManager::addAnimalInAviary(const string& aviaryId, const string& anim
 
     if (added) {
         animal->setAviaryId(aviaryId);
+        animalRepo.addAnimalInAviary(aviaryId, animalId);
         logger.info("Animal \"" + animal->getName() + "\" added into aviary \"" + aviary->getName() + "\".");
     } else {
         logger.warn("Failed to add animal \"" + animal->getName() + "\" to aviary \"" + aviary->getName() + "\".");
@@ -91,6 +138,7 @@ bool AnimalManager::removeAnimalFromAviary(const string& aviaryId, const string&
     bool removed = aviary->removeAnimal(animalId);
 
     if (removed) {
+        animalRepo.removeAnimalFromAviary(aviaryId, animalId);
         logger.info("Removed animal " + animalId + " from aviary " + aviaryId);
     } else {
         logger.warn("Failed to remove animal " + animalId + " from aviary " + aviaryId);
@@ -119,6 +167,7 @@ bool AnimalManager::removeAnimalFromAnimals(const string& animalId) {
     }
 
     animals.erase(it);
+    animalRepo.removeAnimal(animalId);
     logger.info("Animal " + animalId + " deleted from system.");
     return true;
 }
@@ -159,6 +208,7 @@ bool AnimalManager::moveAnimalBetweenAviaries(const string& fromAviaryId, const 
 
     fromAviary->removeAnimal(animalId);
     toAviary->addAnimal(animal);
+    animalRepo.moveAnimal(animalId, fromAviaryId, toAviaryId);
 
     logger.info("Animal \"" + animal->getName() + "\" moved from \"" + fromAviary->getName() + "\" to \"" + toAviary->getName() + "\".");
 
@@ -205,8 +255,24 @@ void AnimalManager::feedById(const string& animalId) {
 
 void AnimalManager::listAllAnimals() const {
     logger.debug("listAllAnimals() called");
+    if (animals.empty()) {
+        cout << "No animals in the system." << endl;
+        logger.warn("No animals found in memory.");
+        return;
+    }
+
     cout << "\n=== All animals ===\n";
     int i = 1;
+    for (const auto& [id, a] : animals) {
+        if (!a) {
+            logger.error("Null animal pointer detected for ID: " + id);
+            cout << "Null animal pointer for ID: " << id << endl;
+            continue;
+        }
+        string aviaryInfo = a->getAviaryId().empty() ? "Not assigned to any aviary" : a->getAviaryId();
+        cout << i++ << ". [" << a->getId() << "] " << a->getName()
+             << " (" << a->getSpecies() << ") - Aviary: " << aviaryInfo << "\n";
+    }
     for (const auto& [id, a] : animals) {
         string aviaryInfo = a->getAviaryId().empty() ? "Not assigned to any aviary" : a->getAviaryId();
         cout << i++ << ". [" << a->getId() << "] " << a->getName()

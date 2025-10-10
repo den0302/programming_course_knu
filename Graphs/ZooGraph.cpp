@@ -5,6 +5,8 @@
 #include <algorithm>
 #include "../Logger/LoggerGlobal.h"
 #include <sstream>
+
+#include "../DatabaseManager/PathRepository.h"
 using namespace std;
 
 //===========Aviary===========
@@ -18,10 +20,16 @@ Aviary::Aviary(string& id,
                string& assignedEmployee,
                const string& animalsStr)
     : Vertex(id), name(move(name)), type(move(type)), area(area),
-    capacity(capacity), assignedEmployee(move(assignedEmployee))
+capacity(capacity), assignedEmployee(move(assignedEmployee)), animalsStrTemp(animalsStr)
 {
-    logger.info("Loading Aviary from file with id: " + id);
-    setAnimals(animalsStr);
+    logger.info("Loaded Aviary from DB with id: " + id +
+            " (animals pending load: " + animalsStr + ")");
+}
+
+const string& Aviary::getAnimalsStrTemp() const { return animalsStrTemp; }
+void Aviary::clearAnimalsStrTemp() { animalsStrTemp.clear(); }
+vector<shared_ptr<Animal>>& Aviary::getAnimalsRef() {
+    return animals;
 }
 void Aviary::printInfoAboutAviary() const {
     logger.debug("Printing info about aviary: " + name);
@@ -62,7 +70,7 @@ string Aviary::getAnimalsStr() const{
 
     stringstream ss;
     for (size_t i = 0; i < animals.size(); ++i) {
-        ss << animals[i];
+        ss << animals[i]->getId();
         if (i + 1 < animals.size())
             ss << ",";
     }
@@ -85,44 +93,13 @@ void Aviary::setAssignedEmployee(const std::string& empId) {
                 " to aviary " + name);
 }
 
-void Aviary::setAnimals(const string& Newanimals) {
-    logger.debug("setAssignedAviaries input: [" + Newanimals + "]");
-    animals.clear();
-
-    if (Newanimals.empty()) return;
-
-    stringstream ss(Newanimals);
-    string animalId;
-
-    auto& animalMap = ZooGraph::getInstance().getAnimalManager().getAnimals();
-
-    while (getline(ss, animalId, ',')) {
-        size_t start = animalId.find_first_not_of(" \t");
-        size_t end   = animalId.find_last_not_of(" \t");
-        if (start != string::npos && end != string::npos)
-            animalId = animalId.substr(start, end - start + 1);
-        else
-            animalId.clear();
-
-        if (!animalId.empty()) {
-            auto it = animalMap.find(animalId);
-            if (it != animalMap.end()) {
-                animals.push_back(it->second);
-            } else {
-                logger.warn("Animal with ID [" + animalId + "] not found");
-            }
-        }
-    }
-
-    logger.debug("Parsed " + to_string(animals.size()) + " aviaries");
-}
-
 bool Aviary::addAnimal(const shared_ptr<Animal>& animal) {
     if (!canAddAnimal(animal)) {
         logger.warn("Cannot add animal " + animal->getId() + " to aviary " + name);
         return false;
     }
     animals.push_back(animal);
+
     logger.info("Animal added to aviary " + name + ": " + animal->getName());
     return true;
 }
@@ -161,30 +138,122 @@ bool Aviary::hasAnimal(const string& animalId) const {
 }
 
 bool Aviary::canAddAnimal(const shared_ptr<Animal>& animal) const {
-    if (hasAnimal(animal->getId())) return false;
-    if ((int)animals.size() >= capacity) return false;
-    return ranges::any_of(animals, [&](const auto& existing) {
-        return existing->isCompatibleWith(animal) && animal->isCompatibleWith(existing);
-    });
+    if (!animal) {
+        logger.warn("canAddAnimal: Tried to add a null animal pointer.");
+        return false;
+    }
+
+    logger.debug("canAddAnimal: Checking if animal [" + animal->getId() + "] can be added to aviary [" + getName() + "].");
+
+    if (hasAnimal(animal->getId())) {
+        logger.debug("canAddAnimal: Animal [" + animal->getId() + "] is already in this aviary.");
+        return false;
+    }
+
+    if (static_cast<int>(animals.size()) >= capacity) {
+        logger.debug("canAddAnimal: Aviary is full (" + std::to_string(animals.size()) + "/" + std::to_string(capacity) + ").");
+        return false;
+    }
+
+    for (const auto& existing : animals) {
+        if (!existing) {
+            logger.warn("canAddAnimal: Found a null existing animal pointer in aviary. Skipping compatibility check...");
+            continue;
+        }
+
+        if (!existing->isCompatibleWith(animal)) {
+            logger.debug("canAddAnimal: Animal [" + animal->getId() + "] is NOT compatible with existing animal [" + existing->getId() + "] (existing -> new).");
+            return false;
+        }
+
+        if (!animal->isCompatibleWith(existing)) {
+            logger.debug("canAddAnimal: Animal [" + animal->getId() + "] is NOT compatible with existing animal [" + existing->getId() + "] (new -> existing).");
+            return false;
+        }
+
+        logger.debug("canAddAnimal: Animal [" + animal->getId() + "] is compatible with existing animal [" + existing->getId() + "].");
+    }
+
+    logger.info("canAddAnimal: Animal [" + animal->getId() + "] CAN be added to aviary [" + getName() + "].");
+    return true;
 }
 
 //===========Path===========
 double Path::getLength() const { return getWeight(); }
+string Path::getFromId() const { return getFrom(); }
+string Path::getToId() const { return getTo(); }
 
 //===========ZooGraph===========
-ZooGraph* ZooGraph::instance = nullptr;
-
-ZooGraph::ZooGraph()
-    : animalManager(*this), employeeManager(*this)
+ZooGraph::ZooGraph(AviaryRepository& aviaryRepository,
+                   PathRepository& pathRepository,
+                   AnimalRepository& animalRepository,
+                   EmployeeRepository& employeeRepository)
+:   repoAv(aviaryRepository),
+    repoPth(pathRepository),
+    animalRepo(animalRepository),
+    employeeRepo(employeeRepository),
+    animalManager(*this, animalRepository),
+    employeeManager(*this, employeeRepository)
 {
-    instance = this;
+    logger.debug("Initializing ZooGraph with database-backed repository...");
+
+    repoAv.initTable();
+    loadAviariesFromRepo(repoAv);
+
+    repoPth.initTable();
+    loadPathsFromRepo(repoPth);
 }
 
-ZooGraph& ZooGraph::getInstance() {
-    if (!instance) {
-        throw std::runtime_error("ZooGraph instance not initialized!");
+void ZooGraph::loadAviariesFromRepo(AviaryRepository& repo) {
+    try {
+        unordered_map<string, shared_ptr<Aviary>> allAviaries = repo.getAllAviaries();
+
+        logger.info("Loaded " + to_string(allAviaries.size()) + " aviaries from database.");
+
+        unordered_map<string, shared_ptr<Vertex>> converted;
+        converted.reserve(allAviaries.size());
+
+        for (auto& [id, aviary] : allAviaries) {
+            converted[id] = static_pointer_cast<Vertex>(aviary);
+        }
+
+        setVertices(converted);
+
+        logger.debug("Aviaries successfully added to ZooGraph.");
     }
-    return *instance;
+    catch (const exception& e) {
+        logger.error(string("Error loading aviaries: ") + e.what());
+    }
+}
+
+void ZooGraph::loadPathsFromRepo(PathRepository& repo) {
+    try {
+        vector<shared_ptr<Path>> allPaths = repo.getAllPaths();
+
+        logger.info("Loaded " + to_string(allPaths.size()) + " paths from database.");
+
+        for (const auto& path : allPaths) {
+            if (!path) continue;
+
+            string fromId = path->getFromId();
+            string toId   = path->getToId();
+            double length = path->getLength();
+
+            if (getVertex(fromId) && getVertex(toId)) {
+                addEdge(fromId, toId, length);
+                logger.debug("Added path: " + fromId + " -> " + toId +
+                                 " (length = " + to_string(length) + ")");
+            } else {
+                logger.warn("Path missed: no vertex found for " +
+                                fromId + " or " + toId);
+            }
+        }
+
+        logger.info("All paths successfully added to ZooGraph.");
+    }
+    catch (const exception& e) {
+        logger.error(string("Error loading paths: ") + e.what());
+    }
 }
 
 AnimalManager& ZooGraph::getAnimalManager() { return animalManager; }
@@ -225,24 +294,26 @@ vector<string> ZooGraph::getNeighborsNames(const string& aviaryId) const {
 }
 
 void ZooGraph::addAviary(shared_ptr<Aviary> aviary) {
-    // void ZooGraph::addAviary(const shared_ptr<Aviary>& aviary)
     addVertex(aviary);
-    //addVertex(move(aviary));
+    repoAv.addAviary(*aviary);
     logger.info("Aviary added: " + aviary->getName());
 }
 
 void ZooGraph::removeAviary(const string& id) {
     removeVertex(id);
+    repoAv.removeAviary(id);
     logger.info("Aviary removed: " + id);
 }
 
 void ZooGraph::addPath(const string& fromId, const string& toId, double length) {
     addEdge(fromId, toId, length);
+    repoPth.addPath(fromId, toId, length);
     logger.info("Path added: " + fromId + " <-> " + toId + " (" + to_string(length) + " m)");
 }
 
 void ZooGraph::removePath(const string& fromId, const string& toId) {
     removeEdge(fromId, toId);
+    repoPth.removePath(fromId, toId);
     logger.info("Path removed: " + fromId + " <-> " + toId);
 }
 

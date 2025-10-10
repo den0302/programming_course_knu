@@ -1,7 +1,13 @@
 #ifndef ANIMALREPOSITORY_H
 #define ANIMALREPOSITORY_H
 #include "DatabaseManager.h"
-#include "../Creatures/AnimalManager.h"
+#include <unordered_map>
+#include <memory>
+
+using namespace std;
+
+class AnimalManager;
+class Animal;
 
 class AnimalRepository {
 private:
@@ -14,9 +20,9 @@ public:
     void addAnimal(const Animal& a);
     bool removeAnimal(const string& id);
 
-    void addAnimalInAviary(const std::string& aviaryId, const std::string& animalId);
-    void removeAnimalFromAviary(const std::string& aviaryId, const std::string& animalId);
-    bool moveAnimal(const string& id, const string& newAviaryId);
+    void addAnimalInAviary(const string& aviaryId, const string& animalId);
+    void removeAnimalFromAviary(const string& aviaryId, const string& animalId);
+    bool moveAnimal(const string& id, const string& oldAviaryId, const string& newAviaryId);
 
     unordered_map<string, shared_ptr<Animal>> getAllAnimals();
     void clearAll();

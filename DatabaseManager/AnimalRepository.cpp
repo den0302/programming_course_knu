@@ -1,9 +1,13 @@
 #include "AnimalRepository.h"
+#include "../Creatures/AnimalManager.h"
+#include "../Logger/LoggerGlobal.h"
+#include "../Graphs/ZooGraph.h"
+#include "SQLUtilities/SQLUtils.h"
 #include <unordered_map>
 #include <memory>
 #include <sstream>
 
-#include "../Graphs/ZooGraph.h"
+using namespace std;
 
 void AnimalRepository::initTable() {
     string sql = R"(
@@ -13,38 +17,42 @@ void AnimalRepository::initTable() {
                 species TEXT,
                 type TEXT,
                 aviaryId CHAR(36),
-                FOREIGN KEY (aviaryId) REFERENCES Aviaries(id) ON DELETE SET NULL,
                 age INTEGER,
-                weight DOUBLE PRECISION
+                weight DOUBLE PRECISION,
+                FOREIGN KEY (aviaryId) REFERENCES Aviaries(id) ON DELETE SET NULL
             );
         )";
     db.execute(sql);
+    if (!db.getDB()) {
+        logger.error("Database pointer is null before initTable!");
+        return;
+    }
+    const char* dbFile = sqlite3_db_filename(db.getDB(), "main");
+    logger.debug(string("AnimalsRepository::initTable - DB file: ") + (dbFile ? dbFile : "unknown"));
 
-    std::string sql2 = R"(
-        CREATE TABLE IF NOT EXISTS Aviaries (
-            id CHAR(36) PRIMARY KEY,
-            name TEXT,
-            type TEXT,
-            area DOUBLE PRECISION,
-            capacity INTEGER,
-            animals TEXT,
-            assignedEmployeeId CHAR(36),
-            FOREIGN KEY (assignedEmployeeId) REFERENCES Employes(id) ON DELETE SET NULL
-        );
-    )";
-    db.execute(sql2);
+    if (!db.execute(sql)) {
+        logger.error("Failed to create table 'Animals'. See previous SQL error.");
+        return;
+    }
+    logger.info("Table 'Animals' ensured.");
+
 }
 
 void AnimalRepository::addAnimal(const Animal& a) {
+    string safeName = escapeSQL(a.getName());
+    string safeSpecies = escapeSQL(a.getSpecies());
+
     string sql = "INSERT INTO Animals (id, name, species, type, aviaryId, age, weight) VALUES ('" +
         a.getId() + "', '" +
-        a.getName() + "', '" +
-        a.getSpecies() + "', '" +
+        safeName + "', '" +
+        safeSpecies + "', '" +
         a.getType() + "', '" +
         a.getAviaryId() + "', " +
         to_string(a.getAge()) + ", " +
         to_string(a.getWeight()) + ");";
-    db.execute(sql);
+    bool ok = db.execute(sql);
+    if (ok) logger.info("Animal added: " + a.getId());
+    else logger.error("Failed to insert Animal: " + a.getId());
 }
 
 bool AnimalRepository::removeAnimal(const string& id) {
@@ -52,13 +60,13 @@ bool AnimalRepository::removeAnimal(const string& id) {
     return db.execute(sql);
 }
 
-void AnimalRepository::addAnimalInAviary(const std::string& aviaryId, const std::string& animalId) {
-    std::string sql1 = "UPDATE Animals SET aviaryId = '" + aviaryId + "' WHERE id = '" + animalId + "';";
+void AnimalRepository::addAnimalInAviary(const string& aviaryId, const string& animalId) {
+    string sql1 = "UPDATE Animals SET aviaryId = '" + aviaryId + "' WHERE id = '" + animalId + "';";
     db.execute(sql1);
 
-    std::string selectSql = "SELECT animals FROM Aviaries WHERE id = '" + aviaryId + "';";
+    string selectSql = "SELECT animals FROM Aviaries WHERE id = '" + aviaryId + "';";
     sqlite3_stmt* stmt;
-    std::string currentAnimals;
+    string currentAnimals;
 
     if (sqlite3_prepare_v2(db.getDB(), selectSql.c_str(), -1, &stmt, nullptr) == SQLITE_OK) {
         if (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -71,17 +79,17 @@ void AnimalRepository::addAnimalInAviary(const std::string& aviaryId, const std:
     if (!currentAnimals.empty()) currentAnimals += ",";
     currentAnimals += animalId;
 
-    std::string updateSql = "UPDATE Aviaries SET animals = '" + currentAnimals + "' WHERE id = '" + aviaryId + "';";
+    string updateSql = "UPDATE Aviaries SET animals = '" + currentAnimals + "' WHERE id = '" + aviaryId + "';";
     db.execute(updateSql);
 }
 
-void AnimalRepository::removeAnimalFromAviary(const std::string& aviaryId, const std::string& animalId) {
-    std::string sql1 = "UPDATE Animals SET aviaryId = NULL WHERE id = '" + animalId + "';";
+void AnimalRepository::removeAnimalFromAviary(const string& aviaryId, const string& animalId) {
+    string sql1 = "UPDATE Animals SET aviaryId = NULL WHERE id = '" + animalId + "';";
     db.execute(sql1);
 
-    std::string selectSql = "SELECT animals FROM Aviaries WHERE id = '" + aviaryId + "';";
+    string selectSql = "SELECT animals FROM Aviaries WHERE id = '" + aviaryId + "';";
     sqlite3_stmt* stmt;
-    std::string currentAnimals;
+    string currentAnimals;
 
     if (sqlite3_prepare_v2(db.getDB(), selectSql.c_str(), -1, &stmt, nullptr) == SQLITE_OK) {
         if (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -92,27 +100,25 @@ void AnimalRepository::removeAnimalFromAviary(const std::string& aviaryId, const
     sqlite3_finalize(stmt);
 
     if (!currentAnimals.empty()) {
-        std::stringstream ss(currentAnimals);
-        std::string token, newList;
+        stringstream ss(currentAnimals);
+        string token, newList;
         bool first = true;
 
-        while (std::getline(ss, token, ',')) {
+        while (getline(ss, token, ',')) {
             if (token != animalId) {
                 if (!first) newList += ",";
                 newList += token;
                 first = false;
             }
         }
-        std::string updateSql = "UPDATE Aviaries SET animals = '" + newList + "' WHERE id = '" + aviaryId + "';";
+        string updateSql = "UPDATE Aviaries SET animals = '" + newList + "' WHERE id = '" + aviaryId + "';";
         db.execute(updateSql);
     }
 }
 
-bool AnimalRepository::moveAnimal(const string& id, const string& newAviaryId) {
-    string sql =
-        "UPDATE Animals SET aviaryId = '" + newAviaryId +
-        "' WHERE id = '" + id + "';";
-    return db.execute(sql);
+bool AnimalRepository::moveAnimal(const string& id, const string& oldAviaryId, const string& newAviaryId) {
+    removeAnimalFromAviary(oldAviaryId,id);
+    addAnimalInAviary(newAviaryId, id);
 }
 
 unordered_map<string, shared_ptr<Animal>> AnimalRepository::getAllAnimals() {
@@ -131,24 +137,32 @@ unordered_map<string, shared_ptr<Animal>> AnimalRepository::getAllAnimals() {
         string species   = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
         string type      = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3));
 
-        std::string aviaryId;
+        string aviaryId;
         const unsigned char* aviaryText = sqlite3_column_text(stmt, 4);
         if (aviaryText) aviaryId = reinterpret_cast<const char*>(aviaryText);
 
         int age          = sqlite3_column_int(stmt, 5);
         double weight    = sqlite3_column_double(stmt, 6);
 
-        /*if (type != "Mammal" &&
-            type !=  "Reptile" &&
-            type !=   "Bird" &&
-            type !=   "Fish" &&
-            type !=   "Amphibian" &&
-            type !=   "Arachnid" &&
-            type !=   "Insect") {
-        }*/
+        shared_ptr<Animal> animal;
 
-        auto animal = ZooGraph::getInstance().getAnimalManager().createAnimal(id, name, species, age, weight, type, aviaryId);
-        //auto animal = make_shared<Animal>(id, name, species, age, weight, type, aviaryId);
+        if (type == "Mammal")
+            animal = make_shared<Mammal>(id, name, species, age, weight, "Mammal", aviaryId);
+        else if (type == "Reptile")
+            animal = make_shared<Reptile>(id, name, species, age, weight, "Reptile", aviaryId);
+        else if (type == "Bird")
+            animal = make_shared<Bird>(id, name, species, age, weight, "Bird", aviaryId);
+        else if (type == "Fish")
+            animal = make_shared<Fish>(id, name, species, age, weight, "Fish", aviaryId);
+        else if (type == "Amphibian")
+            animal = make_shared<Amphibian>(id, name, species, age, weight, "Amphibian", aviaryId);
+        else if (type == "Arachnid")
+            animal = make_shared<Arachnid>(id, name, species, age, weight, "Arachnid", aviaryId);
+        else if (type == "Insect")
+            animal = make_shared<Insect>(id, name, species, age, weight, "Insect", aviaryId);
+        else
+            logger.error("Unknown species while loading from datebase: " + species);
+
         animals[id] = animal;
     }
 

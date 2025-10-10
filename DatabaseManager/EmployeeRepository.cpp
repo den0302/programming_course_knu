@@ -1,7 +1,12 @@
 #include "EmployeeRepository.h"
+#include "../Creatures/EmployeeManager.h"
+#include "../Logger/LoggerGlobal.h"
+#include "SQLUtilities/SQLUtils.h"
 #include <memory>
 #include <vector>
 #include <sstream>
+
+using namespace std;
 
 void EmployeeRepository::initTable() {
         string sql = R"(
@@ -15,50 +20,53 @@ void EmployeeRepository::initTable() {
             );
         )";
         db.execute(sql);
+    if (!db.getDB()) {
+        logger.error("Database pointer is null before initTable!");
+        return;
+    }
+    const char* dbFile = sqlite3_db_filename(db.getDB(), "main");
+    logger.debug(string("EmployesRepository::initTable - DB file: ") + (dbFile ? dbFile : "unknown"));
 
-    string sql2 = R"(
-        CREATE TABLE IF NOT EXISTS Aviaries (
-            id CHAR(36) PRIMARY KEY,
-            name TEXT,
-            type TEXT,
-            area DOUBLE PRECISION,
-            capacity INTEGER,
-            animals TEXT,
-            assignedEmployeeId CHAR(36),
-            FOREIGN KEY (assignedEmployeeId) REFERENCES Employes(id) ON DELETE SET NULL
-        );
-    )";
-    db.execute(sql2);
+    if (!db.execute(sql)) {
+        logger.error("Failed to create table 'Employes'. See previous SQL error.");
+        return;
+    }
+    logger.info("Table 'Employes' ensured.");
     }
 
     void EmployeeRepository::addEmployee(const Employee& e) {
-    string sql = "INSERT INTO Employees (id, name, age, salary, experience, assignedAviaries) VALUES ("
+    string safeName = escapeSQL(e.getName());
+
+    string sql = "INSERT INTO Employes (id, name, age, salary, experience, assignedAviaries) VALUES ("
              "'" + e.getId() + "', "
-             "'" + e.getName() + "', "
+             "'" + safeName + "', "
              + to_string(e.getAge()) + ", "
              + to_string(e.getSalary()) + ", "
              + to_string(e.getExperience()) + ", "
              "'" + e.getAssignedAviaries() + "');";
+    bool ok = db.execute(sql);
+    if (ok) logger.info("Employee added: " + e.getId() );
+    else logger.error("Failed to insert Employee: " + e.getId() );
     }
+
 
     void EmployeeRepository::removeEmployee(const string& id) {
         string sql = "DELETE FROM Employes WHERE id = '" + id + "';";
         db.execute(sql);
     }
 
-    void EmployeeRepository::moveEmployee(const string& id, const string& newAviary) {
-        string sql = "UPDATE Employes SET assignedAviaries = '" + newAviary + "' WHERE id = '" + id + "';";
-        db.execute(sql);
+    void EmployeeRepository::moveEmployee(const string& employeeId, const string& oldAviary, const string& newAviary) {
+    removeEmployeeFromAviary(employeeId, oldAviary);
+    assignEmployeeToAviary(employeeId, newAviary);
     }
 
 bool EmployeeRepository::assignEmployeeToAviary(const string& employeeId, const string& aviaryId) {
     sqlite3* dbConn = db.getDB();
     sqlite3_stmt* stmt;
 
-    // --- 1. Призначити працівника у таблиці Aviaries ---
     const char* sqlAviary = "UPDATE Aviaries SET assignedEmployeeId = ? WHERE id = ?;";
     if (sqlite3_prepare_v2(dbConn, sqlAviary, -1, &stmt, nullptr) != SQLITE_OK) {
-        // logger.error("SQL prepare error in assignEmployeeToAviary (Aviaries): " + string(sqlite3_errmsg(dbConn)));
+         logger.error("SQL prepare error in assignEmployeeToAviary (Aviaries): " + string(sqlite3_errmsg(dbConn)));
         return false;
     }
     sqlite3_bind_text(stmt, 1, employeeId.c_str(), -1, SQLITE_STATIC);
@@ -67,14 +75,13 @@ bool EmployeeRepository::assignEmployeeToAviary(const string& employeeId, const 
     sqlite3_finalize(stmt);
 
     if (!aviaryUpdated) {
-        // logger.error("Failed to update Aviaries for employee " + employeeId);
+         logger.error("Failed to update Aviaries for employee " + employeeId);
         return false;
     }
 
-    // --- 2. Оновити поле assignedAviaries у Employees ---
-    const char* sqlSelect = "SELECT assignedAviaries FROM Employees WHERE id = ?;";
+    const char* sqlSelect = "SELECT assignedAviaries FROM Employes WHERE id = ?;";
     if (sqlite3_prepare_v2(dbConn, sqlSelect, -1, &stmt, nullptr) != SQLITE_OK) {
-        // logger.error("SQL prepare error in assignEmployeeToAviary (select): " + string(sqlite3_errmsg(dbConn)));
+         logger.error("SQL prepare error in assignEmployeeToAviary (select): " + string(sqlite3_errmsg(dbConn)));
         return false;
     }
     sqlite3_bind_text(stmt, 1, employeeId.c_str(), -1, SQLITE_STATIC);
@@ -92,9 +99,9 @@ bool EmployeeRepository::assignEmployeeToAviary(const string& employeeId, const 
         current = aviaryId;
     }
 
-    const char* sqlUpdate = "UPDATE Employees SET assignedAviaries = ? WHERE id = ?;";
+    const char* sqlUpdate = "UPDATE Employes SET assignedAviaries = ? WHERE id = ?;";
     if (sqlite3_prepare_v2(dbConn, sqlUpdate, -1, &stmt, nullptr) != SQLITE_OK) {
-        // logger.error("SQL prepare error in assignEmployeeToAviary (update Employees): " + string(sqlite3_errmsg(dbConn)));
+        logger.error("SQL prepare error in assignEmployeeToAviary (update Employes): " + string(sqlite3_errmsg(dbConn)));
         return false;
     }
     sqlite3_bind_text(stmt, 1, current.c_str(), -1, SQLITE_STATIC);
@@ -103,11 +110,11 @@ bool EmployeeRepository::assignEmployeeToAviary(const string& employeeId, const 
     sqlite3_finalize(stmt);
 
     if (employeeUpdated) {
-        // logger.info("Employee " + employeeId + " assigned to Aviary " + aviaryId);
+        logger.info("Employee " + employeeId + " assigned to Aviary " + aviaryId);
         return true;
     }
 
-    //logger.error("Failed to update Employees for employee " + employeeId);
+    logger.error("Failed to update Employes for employee " + employeeId);
     return false;
 }
 
@@ -115,10 +122,9 @@ bool EmployeeRepository::removeEmployeeFromAviary(const string& employeeId, cons
     sqlite3* dbConn = db.getDB();
     sqlite3_stmt* stmt;
 
-    // --- 1. Очистити поле assignedEmployeeId у Aviaries ---
     const char* sqlAviary = "UPDATE Aviaries SET assignedEmployeeId = NULL WHERE id = ?;";
     if (sqlite3_prepare_v2(dbConn, sqlAviary, -1, &stmt, nullptr) != SQLITE_OK) {
-        //logger.error("SQL prepare error in removeEmployeeFromAviary (Aviaries): " + string(sqlite3_errmsg(dbConn)));
+        logger.error("SQL prepare error in removeEmployeeFromAviary (Aviaries): " + string(sqlite3_errmsg(dbConn)));
         return false;
     }
     sqlite3_bind_text(stmt, 1, aviaryId.c_str(), -1, SQLITE_STATIC);
@@ -126,14 +132,13 @@ bool EmployeeRepository::removeEmployeeFromAviary(const string& employeeId, cons
     sqlite3_finalize(stmt);
 
     if (!aviaryUpdated) {
-        //logger.error("Failed to update Aviaries for aviary " + aviaryId);
+        logger.error("Failed to update Aviaries for aviary " + aviaryId);
         return false;
     }
 
-    // --- 2. Видалити aviaryId з assignedAviaries у Employees ---
-    const char* sqlSelect = "SELECT assignedAviaries FROM Employees WHERE id = ?;";
+    const char* sqlSelect = "SELECT assignedAviaries FROM Employes WHERE id = ?;";
     if (sqlite3_prepare_v2(dbConn, sqlSelect, -1, &stmt, nullptr) != SQLITE_OK) {
-        // logger.error("SQL prepare error in removeEmployeeFromAviary (select): " + string(sqlite3_errmsg(dbConn)));
+        logger.error("SQL prepare error in removeEmployeeFromAviary (select): " + string(sqlite3_errmsg(dbConn)));
         return false;
     }
     sqlite3_bind_text(stmt, 1, employeeId.c_str(), -1, SQLITE_STATIC);
@@ -158,9 +163,9 @@ bool EmployeeRepository::removeEmployeeFromAviary(const string& employeeId, cons
             }
         }
 
-        const char* sqlUpdate = "UPDATE Employees SET assignedAviaries = ? WHERE id = ?;";
+        const char* sqlUpdate = "UPDATE Employes SET assignedAviaries = ? WHERE id = ?;";
         if (sqlite3_prepare_v2(dbConn, sqlUpdate, -1, &stmt, nullptr) != SQLITE_OK) {
-            //logger.error("SQL prepare error in removeEmployeeFromAviary (update Employees): " + string(sqlite3_errmsg(dbConn)));
+            logger.error("SQL prepare error in removeEmployeeFromAviary (update Employes): " + string(sqlite3_errmsg(dbConn)));
             return false;
         }
         sqlite3_bind_text(stmt, 1, updated.c_str(), -1, SQLITE_STATIC);
@@ -169,12 +174,12 @@ bool EmployeeRepository::removeEmployeeFromAviary(const string& employeeId, cons
         sqlite3_finalize(stmt);
 
         if (employeeUpdated) {
-            //logger.info("Removed Aviary " + aviaryId + " from Employee " + employeeId);
+            logger.info("Removed Aviary " + aviaryId + " from Employee " + employeeId);
             return true;
         }
     }
 
-    //logger.warn("No aviary found to remove for employee " + employeeId);
+    logger.warn("No aviary found to remove for employee " + employeeId);
     return true;
 }
 

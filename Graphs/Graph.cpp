@@ -36,7 +36,7 @@ Vertex::Vertex() {
 
     logger.debug("Vertex created with id = " + id);
 }
-Vertex::Vertex(string& id) : id(move(id)) {}
+Vertex::Vertex(const string& id) : id(move(id)) {}
 
 Vertex::~Vertex() {
     logger.debug("Vertex destroyed: " + id);

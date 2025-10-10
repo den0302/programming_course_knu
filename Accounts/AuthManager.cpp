@@ -11,6 +11,7 @@ AuthManager::AuthManager(AccountRepository& repository)
     : repo(repository) {
     logger.debug("Initializing AuthManager with database-backed repository...");
     repo.initTable();
+   //db.debugListTables()
 
     auto all = repo.getAllAccounts();
     if (all.empty()) {

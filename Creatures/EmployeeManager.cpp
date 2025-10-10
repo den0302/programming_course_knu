@@ -4,6 +4,14 @@
 #include <iostream>
 using namespace std;
 
+EmployeeManager::EmployeeManager(ZooGraph& graph, EmployeeRepository& employeeRepo) : zooGraph(graph), employeeRepo(employeeRepo) {
+    employeeRepo.initTable();
+    loadEmployeesFromRepo(employeeRepo);
+}
+
+void EmployeeManager::loadEmployeesFromRepo(EmployeeRepository& employeeRepo) {
+    employees = employeeRepo.getAllEmployes();
+}
 
 bool EmployeeManager::addEmployee(const shared_ptr<Employee>& employee) {
     if (!employee) {
@@ -18,6 +26,7 @@ bool EmployeeManager::addEmployee(const shared_ptr<Employee>& employee) {
     }
 
     employees[id] = employee;
+    employeeRepo.addEmployee(*employee);
     logger.info("Added new employee: " + employee->getName() + " (ID: " + id + ")");
     return true;
 }
@@ -67,6 +76,8 @@ bool EmployeeManager::assignEmployeeToAviary(const string& employeeId, const str
     aviary->setAssignedEmployee(employeeId);
     emp->assignAviary(aviaryId);
 
+    employeeRepo.assignEmployeeToAviary(employeeId, aviaryId);
+
     logger.info("Employee " + emp->getName() + " (ID: " + emp->getId() + 
                  ") assigned to aviary " + aviary->getName() + " (ID: " + aviaryId + ").");
     return true;
@@ -95,6 +106,7 @@ bool EmployeeManager::reassignEmployee(const string& empId, const string& fromAv
     fromAviary->removeAssignedEmployee();
     toAviary->setAssignedEmployee(empId);
     emp->replaceAviary(fromAviaryId, toAviaryId);
+    employeeRepo.moveEmployee(empId, fromAviaryId, toAviaryId);
 
     logger.info("Employee " + emp->getName() + " successfully reassigned.");
     return true;
@@ -135,9 +147,7 @@ bool EmployeeManager::removeEmployeeFromAviary(const string& employeeId, const s
     aviaryPtr->removeAssignedEmployee();
     empIt->second->removeAviary(aviaryId);
 
-
-    aviaryPtr->removeAssignedEmployee();
-    empIt->second->removeAviary(aviaryId);
+    employeeRepo.removeEmployeeFromAviary(empIt->second->getId(), aviaryId);
 
     logger.info("Employee " + assignedId + " unassigned from aviary " + aviaryPtr->getName() + ".");
     return true;
@@ -167,6 +177,7 @@ bool EmployeeManager::removeEmployee(const string& id) {
     }
 
     employees.erase(id);
+    employeeRepo.removeEmployee(id);
     logger.info("Employee " + emp->getName() + " removed from system.");
     return true;
 }
